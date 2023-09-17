@@ -1,7 +1,9 @@
+console.log("Sorter script loaded");
+
 document.addEventListener("DOMContentLoaded", function() {
     // Your table ID or class
     const table = document.querySelector("table.table.table-condensed.table-hover");
-  
+    console.log("Table: "+table);
     if (table) {
       const headers = table.querySelectorAll("th");
   
@@ -16,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
   
   
 function sortTable(n) {
+    console.log("Sort by column: "+n);
     var table, rows, switching, i, x, y, shouldSwitch;
     table = document.querySelector("table.table.table-condensed.table-hover");
     switching = true;
