@@ -1,26 +1,34 @@
 console.log("Sorter script loaded");
 
-
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Table: "+table);
-    const table = document.querySelector("table.table.table-condensed.table-hover");
-    if (table) {
-      console.log("Table found");
-      const headers = table.querySelectorAll("th");
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.addedNodes.length) {
+      // Check if the table has been added
+      const table = document.querySelector("table.table.table-condensed.table-hover");
+      if (table) {
+        console.log("Table found");
+        const headers = table.querySelectorAll("th");
   
-      headers.forEach((header, index) => {
-        console.log("Header ("+index+"): "+header);
-
-        header.addEventListener("click", function() {
-          // Your sorting logic here, using 'index' to identify which column to sort
-          sortTable(index);
-        });
-      });
-    } else {
-      console.log("Table not found");
+          headers.forEach((header, index) => {
+            console.log("Header ("+index+"): "+header);
+    
+            header.addEventListener("click", function() {
+              sortTable(index);
+            });
+          });
+          console.log("Table found. Injecting sorting logic.");
+        //observer.disconnect(); // Stop observing if you wish
+      } else {
+        console.log("Table not found");
+      }
     }
   });
-  
+});
+
+// Start observing
+const config = { childList: true, subtree: true };
+observer.observe(document.body, config);
+
   
 function sortTable(n) {
     console.log("Sort by column: "+n);
