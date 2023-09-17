@@ -1,0 +1,23 @@
+{
+    "manifest_version": 2,
+    "name": "Cat Sorter",
+    "version": "1.0",
+    "description": "Sorts cat tables",
+    "permissions": ["activeTab", "storage", "http://*/*", "https://*/*"],
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://fdkat.dk/kissat.aspx"
+            ],
+            "js": [
+                "sorter.js"
+            ]
+        }
+    ]
+}
