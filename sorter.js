@@ -1,18 +1,23 @@
 console.log("Sorter script loaded");
 
+
 document.addEventListener("DOMContentLoaded", function() {
-    // Your table ID or class
-    const table = document.querySelector("table.table.table-condensed.table-hover");
     console.log("Table: "+table);
+    const table = document.querySelector("table.table.table-condensed.table-hover");
     if (table) {
+      console.log("Table found");
       const headers = table.querySelectorAll("th");
   
       headers.forEach((header, index) => {
+        console.log("Header ("+index+"): "+header);
+
         header.addEventListener("click", function() {
           // Your sorting logic here, using 'index' to identify which column to sort
           sortTable(index);
         });
       });
+    } else {
+      console.log("Table not found");
     }
   });
   
