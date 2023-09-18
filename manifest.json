@@ -1,8 +1,10 @@
 {
     "manifest_version": 3,
-    "name": "FDKat improvements",
-    "version": "1.0",
-    "description": "Sorts FDKat search table",
+    "version": "0.2",
+    "version_name": "0.2 Beta",
+    "name": "KissatDB add-ons",
+    "description": "Adds sorting to main search table on the nordic open pedigree databases FDKat.dk, kissat.kissaliitto.fi & katt.nrr.no. Other features may come later.",
+    "author": "Kattegenetik.info / Jan Krag",
     "permissions": ["activeTab", "storage"],
     "content_scripts": [
         {
