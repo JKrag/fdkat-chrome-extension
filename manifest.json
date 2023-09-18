@@ -5,7 +5,17 @@
     "name": "KissatDB add-ons",
     "description": "Adds sorting to main search table on the nordic open pedigree databases FDKat.dk, kissat.kissaliitto.fi & katt.nrr.no. Other features may come later.",
     "author": "Kattegenetik.info / Jan Krag",
-    "permissions": ["activeTab", "storage"],
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "images/icon16.png",
+            "48": "images/icon48.png",
+            "128": "images/icon128.png"
+        }
+    },
     "content_scripts": [
         {
             "matches": [
