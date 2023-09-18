@@ -1,41 +1,28 @@
-console.log("Sorter script loaded ... 3");
+console.log("Sorter script loaded ... 4");
 
 
 // Listen for the window load event
 window.addEventListener("load", function () {
   console.log("Page reloaded");
 
-  const observer = new MutationObserver((mutations) => {
-    console.log("DOM changed");
-    mutations.forEach((mutation) => {
-      console.log("Mutation observed");
-      if (mutation.addedNodes.length) {
-        console.log("Node added");
-        // Check if the table has been added
-        const table = document.querySelector("table.table.table-condensed.table-hover");
-        if (table) {
-          console.log("Table found");
-          const headers = table.querySelectorAll("th");
+  // Check if the table has been added
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  if (table) {
+    console.log("Table found");
+    const headers = table.querySelectorAll("th");
 
-          headers.forEach((header, index) => {
-            console.log("Header (" + index + "): " + header);
+    headers.forEach((header, index) => {
+      console.log("Header (" + index + "): " + header);
 
-            header.addEventListener("click", function () {
-              sortTable(index);
-            });
-          });
-          console.log("Table found. Injecting sorting logic.");
-          //observer.disconnect(); // Stop observing if you wish
-        } else {
-          console.log("Table not found");
-        }
-      }
+      header.addEventListener("click", function () {
+        sortTable(index);
+      });
     });
-  });
-  // Start observing
-
-  const config = { childList: true, subtree: true };
-  observer.observe(document.body, config);
+    console.log("Table found. Injecting sorting logic.");
+    //observer.disconnect(); // Stop observing if you wish
+  } else {
+    console.log("Table not found");
+  }
 });
 
 function sortTable(n) {
