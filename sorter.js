@@ -1,5 +1,7 @@
 console.log("Sorter script loaded ... 4");
 
+let lastSortedColumn = -1;
+let ascending = true;
 
 // Listen for the window load event
 window.addEventListener("load", function () {
@@ -20,6 +22,13 @@ window.addEventListener("load", function () {
         headers.forEach((header) => header.style.backgroundColor = "");
         // Highlight the clicked header
         header.style.backgroundColor = "lightgray";
+        if (lastSortedColumn === index) {
+          ascending = !ascending;
+        } else {
+          ascending = true;
+        }
+        lastSortedColumn = index;
+        sortTable(index, ascending);
       });
     });
   } else {
@@ -27,7 +36,7 @@ window.addEventListener("load", function () {
   }
 });
 
-function sortTable(n) {
+function sortTable(n, ascending) {
   console.log("Sort by column: " + n);
   var table, rows, switching, i, x, y, shouldSwitch;
   table = document.querySelector("table.table.table-condensed.table-hover");
