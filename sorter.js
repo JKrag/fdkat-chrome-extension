@@ -59,11 +59,14 @@ function sortColumnBreed(a, b) {
 
 // Custom sort function for column 3 (Date of Birth)
 function sortColumnDOB(a, b) {
-  const [dayA, monthA, yearA] = a.innerText.split("-").map(Number);
-  const [dayB, monthB, yearB] = b.innerText.split("-").map(Number);
 
-  const dateA = new Date(yearA, monthA - 1, dayA);
-  const dateB = new Date(yearB, monthB - 1, dayB);
+  const parseDate = (dateStr) => {
+    const [day, month, year] = dateStr.split(/[-.]/).map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  const dateA = parseDate(a.innerText);
+  const dateB = parseDate(b.innerText);
 
   return dateA - dateB;
 }
