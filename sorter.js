@@ -36,58 +36,72 @@ window.addEventListener("load", function () {
   }
 });
 
-function sortTable(n, ascending) {
-  console.log("Sort by column: " + n);
-  var table, rows, switching, i, x, y, shouldSwitch;
-  table = document.querySelector("table.table.table-condensed.table-hover");
-  switching = true;
+// Custom sort function for column 0
+function sortColumnREG(a, b) {
+  const textA = a.innerText.trim();
+  const textB = b.innerText.trim();
+  return textA.localeCompare(textB);
+}
 
-  while (switching) {
-    switching = false;
-    rows = table.querySelectorAll("tbody tr");
+// Custom sort function for column 1
+function sortColumnName(a, b) {
+  const textA = a.querySelector("a").innerText.trim();
+  const textB = b.querySelector("a").innerText.trim();
+  return textA.localeCompare(textB);
+}
 
-    for (i = 0; i < (rows.length - 1); i++) { // Include the last data row
-      shouldSwitch = false;
-      x = rows[i].getElementsByTagName("TD")[n];
-      y = rows[i + 1].getElementsByTagName("TD")[n];
+// Custom sort function for column 2
+function sortColumnBreed(a, b) {
+  const textA = a.querySelector("span").innerText.trim();
+  const textB = b.querySelector("span").innerText.trim();
+  return textA.localeCompare(textB);
+}
 
-      if (x && y) {
-        var xVal, yVal;
+// Custom sort function for column 3 (Date of Birth)
+function sortColumnDOB(a, b) {
+  const [dayA, monthA, yearA] = a.innerText.split("-").map(Number);
+  const [dayB, monthB, yearB] = b.innerText.split("-").map(Number);
 
-        if (n === 1) {
-          xVal = x.querySelector("a").textContent.trim();
-          yVal = y.querySelector("a").textContent.trim();
-        } else if (n === 2) {
-          xVal = x.querySelector("span").textContent.trim();
-          yVal = y.querySelector("span").textContent.trim();
-        } else {
-          xVal = x.innerHTML.trim();
-          yVal = y.innerHTML.trim();
-        }
+  const dateA = new Date(yearA, monthA - 1, dayA);
+  const dateB = new Date(yearB, monthB - 1, dayB);
 
-        // If sorting by date (column index 3)
-        if (n === 3 && xVal && yVal) {
-          var xDateParts = xVal.split('-');
-          var yDateParts = yVal.split('-');
-          var xDate = new Date(xDateParts[2], xDateParts[1] - 1, xDateParts[0]);
-          var yDate = new Date(yDateParts[2], yDateParts[1] - 1, yDateParts[0]);
+  return dateA - dateB;
+}
 
-          if (xDate > yDate) {
-            shouldSwitch = true;
-            break;
-          }
-        } else {
-          if (xVal.toLowerCase() > yVal.toLowerCase()) {
-            shouldSwitch = true;
-            break;
-          }
-        }
-      }
-    }
+// Custom sort function for column 4
+function sortColumnGender(a, b) {
+  const textA = a.innerText.trim();
+  const textB = b.innerText.trim();
+  return textA.localeCompare(textB);
+}
 
-    if (shouldSwitch) {
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-    }
+function sortTable(columnIndex, ascending) {
+  console.log("Sort by column: " + columnIndex);
+
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  const tbody = table.querySelector("tbody");
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+
+  const sortFunctions = [sortColumnREG, sortColumnName, sortColumnBreed, sortColumnDOB, sortColumnGender];
+
+  // Sort rows based on the content of the specified column
+  rows.sort((rowA, rowB) => {
+    const cellA = rowA.cells[columnIndex];
+    const cellB = rowB.cells[columnIndex];
+    const compare = sortFunctions[columnIndex](cellA, cellB);
+    return ascending ? compare : -compare;
+  });
+  // Remove the last row (summary row)
+  const summaryRow = rows.pop();
+
+  // Clear existing rows in tbody
+  while (tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild);
   }
+
+  // Append sorted rows to tbody
+  rows.forEach((row) => tbody.appendChild(row));
+
+  // Append the summary row back to the bottom
+  tbody.appendChild(summaryRow);
 }
