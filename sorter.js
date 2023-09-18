@@ -12,14 +12,16 @@ window.addEventListener("load", function () {
     const headers = table.querySelectorAll("th");
 
     headers.forEach((header, index) => {
-      console.log("Header (" + index + "): " + header);
+      //console.log("Header (" + index + "): " + header);
+
+      header.style.textDecoration = "underline";
 
       header.addEventListener("click", function () {
-        sortTable(index);
+        headers.forEach((header) => header.style.backgroundColor = "");
+        // Highlight the clicked header
+        header.style.backgroundColor = "lightgray";
       });
     });
-    console.log("Table found. Injecting sorting logic.");
-    //observer.disconnect(); // Stop observing if you wish
   } else {
     console.log("Table not found");
   }
