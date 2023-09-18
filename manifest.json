@@ -7,7 +7,9 @@
     "content_scripts": [
         {
             "matches": [
-                "https://fdkat.dk/*"
+                "https://fdkat.dk/*",
+                "https://kissat.kissaliitto.fi/*",
+                "https://katt.nrr.no/*"
             ],
             "js": [
                 "sorter.js"
