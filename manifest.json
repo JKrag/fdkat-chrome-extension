@@ -6,8 +6,7 @@
     "description": "Add sorting to search results on the 3 nordic FIFe-club cat pedigree databases FDKat.dk, kissat.kissaliitto.fi and katt.nrr.no.",
     "author": "Kattegenetik.info / Jan Krag",
     "permissions": [
-        "activeTab",
-        "storage"
+        "activeTab"
     ],
     "action": {
         "default_icon": {
