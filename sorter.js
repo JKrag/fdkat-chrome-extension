@@ -1,4 +1,4 @@
-console.log("Sorter script loaded ... 4");
+console.log("Sorter script loaded ... ");
 
 let lastSortedColumn = -1;
 let ascending = true;
@@ -21,7 +21,7 @@ window.addEventListener("load", function () {
       header.addEventListener("click", function () {
         headers.forEach((header) => header.style.backgroundColor = "");
         // Highlight the clicked header
-        header.style.backgroundColor = "lightgray";
+        header.style.backgroundColor = "lightblue";
         if (lastSortedColumn === index) {
           ascending = !ascending;
         } else {
@@ -107,4 +107,20 @@ function sortTable(columnIndex, ascending) {
 
   // Append the summary row back to the bottom
   tbody.appendChild(summaryRow);
+
+  updateSortIndicator(columnIndex, ascending);
+
+}
+
+// Function to update the sort indicator on the column header
+function updateSortIndicator(columnIndex, ascending) {
+  const headers = document.querySelectorAll("th");
+  // First, remove any existing indicators from all headers
+  headers.forEach(header => {
+    header.innerHTML = header.innerHTML.replace(/ \u25B2|\u25BC/g, ""); // Removes existing arrows
+  });
+
+  // Then, add the indicator to the current header
+  const currentHeader = headers[columnIndex];
+  currentHeader.innerHTML += ascending ? " \u25B2" : " \u25BC"; // Adds an arrow up or down
 }
