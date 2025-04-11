@@ -190,59 +190,146 @@ function addColumnFilters(table, headers) {
       // Create a container for date range
       filterInput = document.createElement("div");
       filterInput.style.display = "flex";
+      filterInput.style.flexDirection = "column";
       filterInput.style.gap = "3px";
       
-      // From date
-      const fromDate = document.createElement("input");
-      fromDate.type = "text";
-      fromDate.placeholder = "From";
-      fromDate.style.flex = "1";
-      fromDate.style.padding = "3px";
-      fromDate.style.width = "50%";
-      fromDate.style.fontSize = "12px";
+      // Year input with clear button
+      const yearRow = document.createElement("div");
+      yearRow.style.display = "flex";
+      yearRow.style.gap = "3px";
+      yearRow.style.marginBottom = "3px";
       
-      // To date
-      const toDate = document.createElement("input");
-      toDate.type = "text";
-      toDate.placeholder = "To";
-      toDate.style.flex = "1";
-      toDate.style.padding = "3px";
-      toDate.style.width = "50%";
-      toDate.style.fontSize = "12px";
+      // Year input
+      const yearInput = document.createElement("input");
+      yearInput.type = "number";
+      yearInput.min = "1900";
+      yearInput.max = new Date().getFullYear(); // Current year
+      yearInput.placeholder = "Year";
+      yearInput.style.flex = "1";
+      yearInput.style.padding = "3px";
+      yearInput.style.fontSize = "12px";
       
-      // Add date inputs to container
-      filterInput.appendChild(fromDate);
-      filterInput.appendChild(toDate);
+      // Add year input to row
+      yearRow.appendChild(yearInput);
       
-      // Set up event listeners for date range inputs
-      fromDate.addEventListener("input", function() {
-        const fromVal = this.value.trim();
-        const toVal = toDate.value.trim();
+      // Date filter buttons
+      const buttonsRow = document.createElement("div");
+      buttonsRow.style.display = "flex";
+      buttonsRow.style.gap = "3px";
+      
+      // Create filter mode buttons
+      const exactButton = document.createElement("button");
+      exactButton.type = "button";
+      exactButton.textContent = "=";
+      exactButton.title = "Born in exact year";
+      exactButton.style.flex = "1";
+      exactButton.style.fontSize = "12px";
+      exactButton.style.padding = "2px";
+      exactButton.style.backgroundColor = "#f0f0f0";
+      exactButton.style.border = "1px solid #ccc";
+      exactButton.style.borderRadius = "3px";
+      exactButton.style.cursor = "pointer";
+      exactButton.dataset.active = "false";
+      
+      const beforeButton = document.createElement("button");
+      beforeButton.type = "button";
+      beforeButton.textContent = "<";
+      beforeButton.title = "Born before year";
+      beforeButton.style.flex = "1";
+      beforeButton.style.fontSize = "12px";
+      beforeButton.style.padding = "2px";
+      beforeButton.style.backgroundColor = "#f0f0f0";
+      beforeButton.style.border = "1px solid #ccc";
+      beforeButton.style.borderRadius = "3px";
+      beforeButton.style.cursor = "pointer";
+      beforeButton.dataset.active = "false";
+      
+      const afterButton = document.createElement("button");
+      afterButton.type = "button";
+      afterButton.textContent = ">";
+      afterButton.title = "Born after year";
+      afterButton.style.flex = "1";
+      afterButton.style.fontSize = "12px";
+      afterButton.style.padding = "2px";
+      afterButton.style.backgroundColor = "#f0f0f0";
+      afterButton.style.border = "1px solid #ccc";
+      afterButton.style.borderRadius = "3px";
+      afterButton.style.cursor = "pointer";
+      afterButton.dataset.active = "false";
+      
+      // Add buttons to row
+      buttonsRow.appendChild(exactButton);
+      buttonsRow.appendChild(beforeButton);
+      buttonsRow.appendChild(afterButton);
+      
+      // Add rows to filter input
+      filterInput.appendChild(yearRow);
+      filterInput.appendChild(buttonsRow);
+      
+      // Function to update button appearance based on state
+      const updateButtonState = (button, active) => {
+        button.dataset.active = active ? "true" : "false";
+        button.style.backgroundColor = active ? "#d0d0ff" : "#f0f0f0";
+        button.style.fontWeight = active ? "bold" : "normal";
+      };
+      
+      // Function to update the date filter
+      const updateDateFilter = () => {
+        const year = yearInput.value.trim();
+        const exactActive = exactButton.dataset.active === "true";
+        const beforeActive = beforeButton.dataset.active === "true";
+        const afterActive = afterButton.dataset.active === "true";
         
-        // Update the filter for this column
+        // Remove filter if no criteria set
+        if (!year && !exactActive && !beforeActive && !afterActive) {
+          delete activeFilters[index];
+          applyFilters();
+          return;
+        }
+        
+        // Set the filter with appropriate parameters
         activeFilters[index] = {
-          type: "date-range",
-          from: fromVal,
-          to: toVal
+          type: "year-filter",
+          year: year,
+          exact: exactActive,
+          before: beforeActive,
+          after: afterActive
         };
         
         // Apply all filters
         applyFilters();
+      };
+      
+      // Event listeners
+      yearInput.addEventListener("input", function() {
+        updateDateFilter();
       });
       
-      toDate.addEventListener("input", function() {
-        const fromVal = fromDate.value.trim();
-        const toVal = this.value.trim();
+      // Helper function to handle button clicks
+      const handleButtonClick = (clickedButton, otherButtons) => {
+        const wasActive = clickedButton.dataset.active === "true";
         
-        // Update the filter for this column
-        activeFilters[index] = {
-          type: "date-range",
-          from: fromVal,
-          to: toVal
-        };
+        // Toggle the clicked button
+        updateButtonState(clickedButton, !wasActive);
         
-        // Apply all filters
-        applyFilters();
+        // If turning on, turn off others (for mutual exclusivity)
+        if (!wasActive) {
+          otherButtons.forEach(btn => updateButtonState(btn, false));
+        }
+        
+        updateDateFilter();
+      };
+      
+      exactButton.addEventListener("click", function() {
+        handleButtonClick(this, [beforeButton, afterButton]);
+      });
+      
+      beforeButton.addEventListener("click", function() {
+        handleButtonClick(this, [exactButton, afterButton]);
+      });
+      
+      afterButton.addEventListener("click", function() {
+        handleButtonClick(this, [exactButton, beforeButton]);
       });
       
       // Add these elements to DOM
@@ -421,6 +508,41 @@ function applyFilters() {
                   break;
                 }
               }
+            }
+          }
+        }
+      }
+      else if (filter.type === "year-filter") {
+        // Year-based filtering
+        if (!filter.year && !filter.exact && !filter.before && !filter.after) {
+          continue; // Skip this filter if no criteria
+        }
+        
+        // Parse the date from the cell
+        const dateStr = cellContent;
+        const parts = dateStr.split(/[-.]/).map(Number);
+        
+        // Only process if it looks like a valid date format
+        if (parts.length === 3) {
+          const [day, month, year] = parts;
+          
+          // If year is specified, check conditions
+          if (filter.year) {
+            const filterYear = parseInt(filter.year, 10);
+            
+            if (filter.exact && year !== filterYear) {
+              showRow = false;
+              break;
+            }
+            
+            if (filter.before && year >= filterYear) {
+              showRow = false;
+              break;
+            }
+            
+            if (filter.after && year <= filterYear) {
+              showRow = false;
+              break;
             }
           }
         }
