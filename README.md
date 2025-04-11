@@ -1,7 +1,7 @@
 # Chrome extension adding features to fdkat.dk, kissat.kissaliitto.fi and katt.nrr.no
 
 This is a small Chrome extension that attempts to address some of the shortcomings of the pedigree database systems of the 3 nordic FIFe clubs in Finland, Norway and Denmark.
-These 3 clubs currently use the same system, originally developed by the Finnish organisation and licensed to the other 2 clubs.
+These 3 clubs currently use the same system, originally developed by the Finnish organization and licensed to the other 2 clubs.
 
 The plan is to make this extension available in the Chrome Web Store, but for now you can install it manually.
 
@@ -18,18 +18,17 @@ The plan is to make this extension available in the Chrome Web Store, but for no
 
 ### Search page sorting
 
-The main publically accessible search page has rather advanced search features, but the results are always sorted by the cats name, which is not always very useful.
+The main publicly accessible search page has rather advanced search features, but the results are always sorted by the cats name, which is not always very useful.
 
 With this extension, the column headers become clickable, and will re-sort the results by that column. Clicking the same column again will reverse the sort order.
 
-The currently sorted column is highlighted in grey. Sort order (increasing or decreasing) is currently not indicated, but should be rather obvious from the table content.
-
+The currently sorted column is highlighted in grey. Sort order (increasing or decreasing) is indicated with arrows.
 
 ## Roadmap
 
 Here are some of the features I'm planning to add in the future:
 
-* Indicate sort order (ascending/descending)
+* Color code the cats in the search results based on their gender.
 * Live filtering of search results
 * Add similar sorting to some of the tables on an individual cats data pages (show results, kittens, etc.)
 
