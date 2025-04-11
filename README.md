@@ -34,11 +34,16 @@ This feature supports multiple languages across the three Nordic websites (Danis
 
 A checkbox is provided above the search results table to easily toggle the color coding on and off according to your preference.
 
+### Live filtering
+
+A search box is now available above the search results table, allowing you to quickly filter the displayed cats based on any text that appears in the table. This is useful for finding specific cats within large search results without having to reload the page or submit a new search.
+
+Simply type in the search box, and the table will instantly update to show only cats that match your filter criteria.
+
 ## Roadmap
 
 Here are some of the features I'm planning to add in the future:
 
-* Live filtering of search results
 * Add similar sorting to some of the tables on an individual cats data pages (show results, kittens, etc.)
 
 If you have any suggestions for features, please open an issue on GitHub or let me know in some other way.

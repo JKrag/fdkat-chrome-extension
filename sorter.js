@@ -14,12 +14,10 @@ window.addEventListener("load", function () {
     console.log("Table found");
     const headers = table.querySelectorAll("th");
 
-    // Add the toggle checkbox above the table
-    addColorToggle(table);
+    // Add controls above the table
+    addTableControls(table);
 
     headers.forEach((header, index) => {
-      //console.log("Header (" + index + "): " + header);
-
       header.style.textDecoration = "underline";
 
       header.addEventListener("click", function () {
@@ -45,12 +43,43 @@ window.addEventListener("load", function () {
   }
 });
 
-// Function to add the color toggle control
-function addColorToggle(table) {
-  // Create a container for the toggle
+// Function to add controls above the table (filter input and color toggle)
+function addTableControls(table) {
+  // Create a container for all controls
+  const controlsContainer = document.createElement("div");
+  controlsContainer.style.marginBottom = "15px";
+  controlsContainer.style.display = "flex";
+  controlsContainer.style.justifyContent = "space-between";
+  controlsContainer.style.alignItems = "center";
+  
+  // Create filter container (left side)
+  const filterContainer = document.createElement("div");
+  
+  // Create filter label
+  const filterLabel = document.createElement("label");
+  filterLabel.htmlFor = "tableFilter";
+  filterLabel.textContent = "Filter cats: ";
+  filterLabel.style.marginRight = "5px";
+  
+  // Create filter input
+  const filterInput = document.createElement("input");
+  filterInput.type = "text";
+  filterInput.id = "tableFilter";
+  filterInput.placeholder = "Type to filter...";
+  filterInput.style.padding = "3px";
+  filterInput.style.width = "200px";
+  
+  // Add event listener for filtering
+  filterInput.addEventListener("input", function() {
+    filterTable(this.value);
+  });
+  
+  // Assemble filter controls
+  filterContainer.appendChild(filterLabel);
+  filterContainer.appendChild(filterInput);
+  
+  // Create color toggle container (right side)
   const toggleContainer = document.createElement("div");
-  toggleContainer.style.marginBottom = "10px";
-  toggleContainer.style.textAlign = "right";
   
   // Create the checkbox
   const checkbox = document.createElement("input");
@@ -79,8 +108,54 @@ function addColorToggle(table) {
   toggleContainer.appendChild(checkbox);
   toggleContainer.appendChild(label);
   
-  // Insert the toggle before the table
-  table.parentNode.insertBefore(toggleContainer, table);
+  // Add both control sets to the container
+  controlsContainer.appendChild(filterContainer);
+  controlsContainer.appendChild(toggleContainer);
+  
+  // Insert the controls before the table
+  table.parentNode.insertBefore(controlsContainer, table);
+}
+
+// Function to filter the table based on input text
+function filterTable(filterText) {
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  
+  // Skip the last row (summary row) if it exists
+  const dataRows = rows.length > 1 ? rows.slice(0, -1) : rows;
+  
+  // Normalize filter text (lowercase, no extra spaces)
+  const filter = filterText.toLowerCase().trim();
+  
+  // Show all rows if filter is empty
+  if (filter === "") {
+    dataRows.forEach(row => {
+      row.style.display = "";
+    });
+    return;
+  }
+  
+  // Check each row against the filter
+  dataRows.forEach(row => {
+    let rowText = "";
+    
+    // Collect text from all cells in the row
+    Array.from(row.cells).forEach(cell => {
+      rowText += cell.textContent.trim() + " ";
+    });
+    
+    // Check if row contains the filter text
+    if (rowText.toLowerCase().includes(filter)) {
+      row.style.display = ""; // Show the row
+    } else {
+      row.style.display = "none"; // Hide the row
+    }
+  });
+  
+  // Always show summary row if exists
+  if (rows.length > dataRows.length) {
+    rows[rows.length - 1].style.display = "";
+  }
 }
 
 // Function to remove color coding
