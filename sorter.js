@@ -119,25 +119,71 @@ function addColumnFilters(table, headers) {
     // Create filter based on column type
     let filterInput;
     
-    // Column 4 is gender - create a select dropdown
+    // Column 4 is gender - create toggle buttons instead of dropdown
     if (index === 4) {
-      filterInput = document.createElement("select");
-      filterInput.style.width = "100%";
-      filterInput.style.padding = "3px";
+      filterInput = document.createElement("div");
+      filterInput.style.display = "flex";
+      filterInput.style.gap = "5px";
       
-      // Add options
-      const options = [
-        { value: "", text: "All" },
-        { value: "male", text: "Males" },
-        { value: "female", text: "Females" }
-      ];
+      // Male toggle button
+      const maleButton = document.createElement("button");
+      maleButton.textContent = "♂";
+      maleButton.title = "Show/hide males";
+      maleButton.type = "button"; // Prevent form submission
+      maleButton.style.flex = "1";
+      maleButton.style.backgroundColor = "#d4e6ff"; // Light blue
+      maleButton.style.border = "1px solid #9ab8e6";
+      maleButton.style.borderRadius = "3px";
+      maleButton.style.padding = "3px 5px";
+      maleButton.style.cursor = "pointer";
+      maleButton.dataset.active = "true"; // Active by default
       
-      options.forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt.value;
-        option.textContent = opt.text;
-        filterInput.appendChild(option);
+      // Female toggle button
+      const femaleButton = document.createElement("button");
+      femaleButton.textContent = "♀";
+      femaleButton.title = "Show/hide females";
+      femaleButton.type = "button"; // Prevent form submission
+      femaleButton.style.flex = "1";
+      femaleButton.style.backgroundColor = "#ffd4e6"; // Light pink
+      femaleButton.style.border = "1px solid #e6b1c9";
+      femaleButton.style.borderRadius = "3px";
+      femaleButton.style.padding = "3px 5px";
+      femaleButton.style.cursor = "pointer";
+      femaleButton.dataset.active = "true"; // Active by default
+      
+      // Function to update button appearance based on state
+      const updateButtonState = (button) => {
+        const isActive = button.dataset.active === "true";
+        button.style.opacity = isActive ? "1" : "0.5";
+        button.style.fontWeight = isActive ? "bold" : "normal";
+      };
+      
+      // Initialize button states
+      updateButtonState(maleButton);
+      updateButtonState(femaleButton);
+      
+      // Add event listeners for toggle buttons
+      maleButton.addEventListener("click", function() {
+        // Toggle active state
+        this.dataset.active = this.dataset.active === "true" ? "false" : "true";
+        updateButtonState(this);
+        
+        // Update filter
+        updateGenderFilter(maleButton.dataset.active === "true", femaleButton.dataset.active === "true", index);
       });
+      
+      femaleButton.addEventListener("click", function() {
+        // Toggle active state
+        this.dataset.active = this.dataset.active === "true" ? "false" : "true";
+        updateButtonState(this);
+        
+        // Update filter
+        updateGenderFilter(maleButton.dataset.active === "true", femaleButton.dataset.active === "true", index);
+      });
+      
+      // Add buttons to container
+      filterInput.appendChild(maleButton);
+      filterInput.appendChild(femaleButton);
     } 
     // Column 3 is date - add special date filter
     else if (index === 3) {
@@ -217,25 +263,8 @@ function addColumnFilters(table, headers) {
     }
     
     // Add event listener for filtering
-    if (index === 4) { // Gender dropdown
-      filterInput.addEventListener("change", function() {
-        // Get selected value
-        const selectedValue = this.value;
-        
-        if (selectedValue === "") {
-          // If "All" selected, remove this filter
-          delete activeFilters[index];
-        } else {
-          // Otherwise, add a gender filter
-          activeFilters[index] = {
-            type: "gender",
-            value: selectedValue
-          };
-        }
-        
-        // Apply all filters
-        applyFilters();
-      });
+    if (index === 4) { // Gender toggle buttons
+      // Handled by toggle button event listeners
     } else { // Text input
       filterInput.addEventListener("input", function() {
         const value = this.value.trim();
@@ -266,6 +295,24 @@ function addColumnFilters(table, headers) {
   
   // Insert the filter row before the table
   table.parentNode.insertBefore(filterRow, table);
+}
+
+// Function to update gender filter based on button states
+function updateGenderFilter(showMales, showFemales, columnIndex) {
+  // If both are active or both are inactive, remove the filter (show all)
+  if ((showMales && showFemales) || (!showMales && !showFemales)) {
+    delete activeFilters[columnIndex];
+  } else {
+    // Otherwise, add a filter for the selected gender
+    activeFilters[columnIndex] = {
+      type: "gender-buttons",
+      showMales: showMales,
+      showFemales: showFemales
+    };
+  }
+  
+  // Apply the filters
+  applyFilters();
 }
 
 // Function to apply all active filters
@@ -319,29 +366,21 @@ function applyFilters() {
           break;
         }
       } 
-      else if (filter.type === "gender") {
-        // Gender filtering
+      else if (filter.type === "gender-buttons") {
+        // Gender button filtering
         const genderLower = cellContent.toLowerCase();
+        const isMale = genderLower === 'm' || genderLower === 'male' || 
+                       genderLower === 'han' || genderLower === 'hankat' || 
+                       genderLower === 'hann' || genderLower === 'hannkatt' || 
+                       genderLower === 'uros';
+        const isFemale = genderLower === 'f' || genderLower === 'female' || 
+                         genderLower === 'hun' || genderLower === 'hunkat' || 
+                         genderLower === 'hunn' || genderLower === 'hunnkatt' || 
+                         genderLower === 'naaras';
         
-        if (filter.value === "male") {
-          // Check for male variations
-          if (!(genderLower === 'm' || genderLower === 'male' || 
-              genderLower === 'han' || genderLower === 'hankat' || 
-              genderLower === 'hann' || genderLower === 'hannkatt' || 
-              genderLower === 'uros')) {
-            showRow = false;
-            break;
-          }
-        } 
-        else if (filter.value === "female") {
-          // Check for female variations
-          if (!(genderLower === 'f' || genderLower === 'female' || 
-              genderLower === 'hun' || genderLower === 'hunkat' || 
-              genderLower === 'hunn' || genderLower === 'hunnkatt' || 
-              genderLower === 'naaras')) {
-            showRow = false;
-            break;
-          }
+        if (!(filter.showMales && isMale) && !(filter.showFemales && isFemale)) {
+          showRow = false;
+          break;
         }
       }
       else if (filter.type === "date-range") {
