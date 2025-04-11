@@ -49,10 +49,36 @@ window.addEventListener("load", function () {
 
 // Function to add the color toggle control
 function addColorToggle(table) {
-  // Create a container for the toggle
-  const toggleContainer = document.createElement("div");
-  toggleContainer.style.marginBottom = "10px";
-  toggleContainer.style.textAlign = "right";
+  // Create a container for the controls
+  const controlsContainer = document.createElement("div");
+  controlsContainer.style.marginBottom = "10px";
+  controlsContainer.style.display = "flex";
+  controlsContainer.style.justifyContent = "space-between";
+  
+  // Create a div for the clear filters button (left side)
+  const clearFiltersDiv = document.createElement("div");
+  
+  // Create the clear filters button
+  const clearFiltersButton = document.createElement("button");
+  clearFiltersButton.type = "button"; // Prevent form submission
+  clearFiltersButton.textContent = "Clear All Filters";
+  clearFiltersButton.style.padding = "4px 8px";
+  clearFiltersButton.style.border = "1px solid #ccc";
+  clearFiltersButton.style.borderRadius = "3px";
+  clearFiltersButton.style.backgroundColor = "#f0f0f0";
+  clearFiltersButton.style.cursor = "pointer";
+  
+  // Add event listener for clear filters button
+  clearFiltersButton.addEventListener("click", function() {
+    clearAllFilters();
+  });
+  
+  // Add button to container
+  clearFiltersDiv.appendChild(clearFiltersButton);
+  
+  // Create a div for the color toggle (right side)
+  const toggleDiv = document.createElement("div");
+  toggleDiv.style.textAlign = "right";
   
   // Create the checkbox
   const checkbox = document.createElement("input");
@@ -78,11 +104,15 @@ function addColorToggle(table) {
   });
   
   // Assemble the toggle control
-  toggleContainer.appendChild(checkbox);
-  toggleContainer.appendChild(label);
+  toggleDiv.appendChild(checkbox);
+  toggleDiv.appendChild(label);
   
-  // Insert the toggle before the table
-  table.parentNode.insertBefore(toggleContainer, table);
+  // Add both controls to the container
+  controlsContainer.appendChild(clearFiltersDiv);
+  controlsContainer.appendChild(toggleDiv);
+  
+  // Insert the controls before the table
+  table.parentNode.insertBefore(controlsContainer, table);
 }
 
 // Function to add column-specific filters
@@ -653,6 +683,41 @@ function colorCodeCatsByGender() {
       }
     }
   });
+}
+
+// Function to clear all filters while preserving sort order
+function clearAllFilters() {
+  // Clear the activeFilters object
+  activeFilters = {};
+  
+  // Reset all filter input elements
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  
+  // Reset text inputs
+  const textInputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+  textInputs.forEach(input => {
+    input.value = '';
+  });
+  
+  // Reset gender toggle buttons
+  const genderButtons = document.querySelectorAll('button[data-active]');
+  genderButtons.forEach(button => {
+    // If it's a gender button (♂/♀), set it to active
+    if (button.textContent === '♂' || button.textContent === '♀') {
+      button.dataset.active = 'true';
+      button.style.opacity = '1';
+      button.style.fontWeight = 'bold';
+    } 
+    // If it's a date filter button (=, <, >), set it to inactive
+    else if (button.textContent === '=' || button.textContent === '<' || button.textContent === '>') {
+      button.dataset.active = 'false';
+      button.style.backgroundColor = '#f0f0f0';
+      button.style.fontWeight = 'normal';
+    }
+  });
+  
+  // Show all rows and reset summary row count
+  applyFilters();
 }
 
 // Custom sort function for column 0

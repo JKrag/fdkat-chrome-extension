@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
-    "version": "0.0.7",
-    "version_name": "0.0.7 Alpha",
+    "version": "0.0.8",
+    "version_name": "0.0.8 Alpha",
     "name": "KissatDB add-ons",
     "description": "Add sorting to search results on the 3 nordic FIFe-club cat pedigree databases FDKat.dk, kissat.kissaliitto.fi and katt.nrr.no.",
     "author": "Kattegenetik.info / Jan Krag",
