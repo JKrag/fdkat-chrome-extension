@@ -36,9 +36,13 @@ A checkbox is provided above the search results table to easily toggle the color
 
 ### Live filtering
 
-A search box is now available above the search results table, allowing you to quickly filter the displayed cats based on any text that appears in the table. This is useful for finding specific cats within large search results without having to reload the page or submit a new search.
+Column-specific filters are now available above each column in the search results table:
 
-Simply type in the search box, and the table will instantly update to show only cats that match your filter criteria.
+- **Standard text filters** for most columns allow you to filter content based on any text that appears in that column
+- **Gender dropdown** specifically for the gender column, letting you easily filter for males, females, or all cats
+- **Date range filter** for the birth date column, allowing filtering by date ranges with "From" and "To" fields
+
+These column-specific filters give you more precise control over your search results and can be combined for advanced filtering. For example, you can filter for female cats born within a specific date range that have certain keywords in their name.
 
 ## Roadmap
 
