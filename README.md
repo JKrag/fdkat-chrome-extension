@@ -24,11 +24,20 @@ With this extension, the column headers become clickable, and will re-sort the r
 
 The currently sorted column is highlighted in grey. Sort order (increasing or decreasing) is indicated with arrows.
 
+### Color-coded gender
+
+Cats in the search results are now color-coded based on their gender:
+- Male cats are highlighted with a light blue background
+- Female cats are highlighted with a light pink background
+
+This feature supports multiple languages across the three Nordic websites (Danish, Norwegian, and Finnish), making it easier to visually distinguish between male and female cats in the search results.
+
+A checkbox is provided above the search results table to easily toggle the color coding on and off according to your preference.
+
 ## Roadmap
 
 Here are some of the features I'm planning to add in the future:
 
-* Color code the cats in the search results based on their gender.
 * Live filtering of search results
 * Add similar sorting to some of the tables on an individual cats data pages (show results, kittens, etc.)
 

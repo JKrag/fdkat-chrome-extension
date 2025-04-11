@@ -2,6 +2,7 @@ console.log("Sorter script loaded ... ");
 
 let lastSortedColumn = -1;
 let ascending = true;
+let colorCodingEnabled = true; // Default to enabled
 
 // Listen for the window load event
 window.addEventListener("load", function () {
@@ -12,6 +13,9 @@ window.addEventListener("load", function () {
   if (table) {
     console.log("Table found");
     const headers = table.querySelectorAll("th");
+
+    // Add the toggle checkbox above the table
+    addColorToggle(table);
 
     headers.forEach((header, index) => {
       //console.log("Header (" + index + "): " + header);
@@ -31,10 +35,101 @@ window.addEventListener("load", function () {
         sortTable(index, ascending);
       });
     });
+    
+    // Apply color coding to the cat rows based on gender
+    if (colorCodingEnabled) {
+      colorCodeCatsByGender();
+    }
   } else {
     console.log("Table not found");
   }
 });
+
+// Function to add the color toggle control
+function addColorToggle(table) {
+  // Create a container for the toggle
+  const toggleContainer = document.createElement("div");
+  toggleContainer.style.marginBottom = "10px";
+  toggleContainer.style.textAlign = "right";
+  
+  // Create the checkbox
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = "colorToggle";
+  checkbox.checked = colorCodingEnabled;
+  
+  // Create the label
+  const label = document.createElement("label");
+  label.htmlFor = "colorToggle";
+  label.textContent = "Color code by gender";
+  label.style.marginLeft = "5px";
+  label.style.fontWeight = "normal";
+  
+  // Add event listener to toggle color coding
+  checkbox.addEventListener("change", function() {
+    colorCodingEnabled = this.checked;
+    if (colorCodingEnabled) {
+      colorCodeCatsByGender();
+    } else {
+      removeColorCoding();
+    }
+  });
+  
+  // Assemble the toggle control
+  toggleContainer.appendChild(checkbox);
+  toggleContainer.appendChild(label);
+  
+  // Insert the toggle before the table
+  table.parentNode.insertBefore(toggleContainer, table);
+}
+
+// Function to remove color coding
+function removeColorCoding() {
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  
+  rows.forEach(row => {
+    row.style.backgroundColor = ""; // Remove background color
+  });
+}
+
+// Function to color code cats by gender
+function colorCodeCatsByGender() {
+  console.log("Applying color coding for cats by gender");
+  
+  // First remove any existing color coding
+  removeColorCoding();
+  
+  // Only apply colors if the feature is enabled
+  if (!colorCodingEnabled) return;
+  
+  const table = document.querySelector("table.table.table-condensed.table-hover");
+  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  
+  // Process all rows and check if the last one is a summary row
+  rows.forEach((row, index) => {
+    // Check if this is a data row (has the gender cell with content)
+    const genderCell = row.cells[4];
+    if (genderCell && genderCell.innerText.trim()) {
+      const gender = genderCell.innerText.trim().toLowerCase();
+      
+      // Apply different colors based on gender across different languages
+      // Male: m, male, han, hann, hannkatt, uros
+      // Female: f, female, hun, hunn, hunnkatt, naaras
+      if (gender === 'm' || gender === 'male' || 
+          gender === 'han' || gender === 'hankat' || 
+          gender === 'hann' || gender === 'hannkatt' || 
+          gender === 'uros') {
+        row.style.backgroundColor = "#d4e6ff"; // Light blue for males
+      } else if (gender === 'f' || gender === 'female' || 
+                gender === 'hun' || gender === 'hunkat' || 
+                gender === 'hunn' || gender === 'hunnkatt' || 
+                gender === 'naaras') {
+        row.style.backgroundColor = "#ffd4e6"; // Light pink for females
+      }
+    }
+  });
+}
 
 // Custom sort function for column 0
 function sortColumnREG(a, b) {
@@ -123,4 +218,9 @@ function updateSortIndicator(columnIndex, ascending) {
   // Then, add the indicator to the current header
   const currentHeader = headers[columnIndex];
   currentHeader.innerHTML += ascending ? " \u25B2" : " \u25BC"; // Adds an arrow up or down
+  
+  // Reapply color coding after sorting
+  if (colorCodingEnabled) {
+    colorCodeCatsByGender();
+  }
 }
