@@ -1,0 +1,31 @@
+{
+  "name": "kissatdb-addons",
+  "version": "0.0.8",
+  "description": "Chrome extension that adds sorting, filtering, and visual enhancements to Nordic FIFe cat pedigree databases",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "package": "./scripts/package.sh",
+    "upload": "chrome-webstore-upload upload --source dist/kissatdb-addons-v$npm_package_version.zip",
+    "publish": "chrome-webstore-upload publish",
+    "release": "npm run package && chrome-webstore-upload --source dist/kissatdb-addons-v$npm_package_version.zip",
+    "setup:keys": "./scripts/setup-credentials.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "chrome-webstore-upload-cli": "^3.3.1",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "jest": "^30.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JKrag/fdkat-chrome-extension"
+  },
+  "author": "Jan Krag",
+  "license": "MIT"
+}
