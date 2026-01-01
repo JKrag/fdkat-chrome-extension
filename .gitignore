@@ -4,6 +4,7 @@ node_modules/
 # Build outputs
 build/
 dist/
+coverage/
 
 # Environment and credentials (NEVER commit these)
 .env
