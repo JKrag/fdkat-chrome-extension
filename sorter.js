@@ -1,4 +1,4 @@
-console.log("Sorter script loaded ... ");
+console.log('Sorter script loaded ... ');
 
 let lastSortedColumn = -1;
 let ascending = true;
@@ -6,14 +6,14 @@ let colorCodingEnabled = true; // Default to enabled
 let activeFilters = {}; // Track active filters for each column
 
 // Listen for the window load event
-window.addEventListener("load", function () {
-  console.log("Page reloaded");
+window.addEventListener('load', function () {
+  console.log('Page reloaded');
 
   // Check if the table has been added
-  const table = document.querySelector("table.table.table-condensed.table-hover");
+  const table = document.querySelector('table.table.table-condensed.table-hover');
   if (table) {
-    console.log("Table found");
-    const headers = table.querySelectorAll("th");
+    console.log('Table found');
+    const headers = table.querySelectorAll('th');
 
     // Add color toggle control above the table
     addColorToggle(table);
@@ -22,12 +22,12 @@ window.addEventListener("load", function () {
     addColumnFilters(table, headers);
 
     headers.forEach((header, index) => {
-      header.style.textDecoration = "underline";
+      header.style.textDecoration = 'underline';
 
-      header.addEventListener("click", function () {
-        headers.forEach((header) => header.style.backgroundColor = "");
+      header.addEventListener('click', function () {
+        headers.forEach((header) => header.style.backgroundColor = '');
         // Highlight the clicked header
-        header.style.backgroundColor = "lightblue";
+        header.style.backgroundColor = 'lightblue';
         if (lastSortedColumn === index) {
           ascending = !ascending;
         } else {
@@ -43,33 +43,33 @@ window.addEventListener("load", function () {
       colorCodeCatsByGender();
     }
   } else {
-    console.log("Table not found");
+    console.log('Table not found');
   }
 });
 
 // Function to add the color toggle control
 function addColorToggle(table) {
   // Create a container for the controls
-  const controlsContainer = document.createElement("div");
-  controlsContainer.style.marginBottom = "10px";
-  controlsContainer.style.display = "flex";
-  controlsContainer.style.justifyContent = "space-between";
+  const controlsContainer = document.createElement('div');
+  controlsContainer.style.marginBottom = '10px';
+  controlsContainer.style.display = 'flex';
+  controlsContainer.style.justifyContent = 'space-between';
   
   // Create a div for the clear filters button (left side)
-  const clearFiltersDiv = document.createElement("div");
+  const clearFiltersDiv = document.createElement('div');
   
   // Create the clear filters button
-  const clearFiltersButton = document.createElement("button");
-  clearFiltersButton.type = "button"; // Prevent form submission
-  clearFiltersButton.textContent = "Clear All Filters";
-  clearFiltersButton.style.padding = "4px 8px";
-  clearFiltersButton.style.border = "1px solid #ccc";
-  clearFiltersButton.style.borderRadius = "3px";
-  clearFiltersButton.style.backgroundColor = "#f0f0f0";
-  clearFiltersButton.style.cursor = "pointer";
+  const clearFiltersButton = document.createElement('button');
+  clearFiltersButton.type = 'button'; // Prevent form submission
+  clearFiltersButton.textContent = 'Clear All Filters';
+  clearFiltersButton.style.padding = '4px 8px';
+  clearFiltersButton.style.border = '1px solid #ccc';
+  clearFiltersButton.style.borderRadius = '3px';
+  clearFiltersButton.style.backgroundColor = '#f0f0f0';
+  clearFiltersButton.style.cursor = 'pointer';
   
   // Add event listener for clear filters button
-  clearFiltersButton.addEventListener("click", function() {
+  clearFiltersButton.addEventListener('click', function() {
     clearAllFilters();
   });
   
@@ -77,24 +77,24 @@ function addColorToggle(table) {
   clearFiltersDiv.appendChild(clearFiltersButton);
   
   // Create a div for the color toggle (right side)
-  const toggleDiv = document.createElement("div");
-  toggleDiv.style.textAlign = "right";
+  const toggleDiv = document.createElement('div');
+  toggleDiv.style.textAlign = 'right';
   
   // Create the checkbox
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.id = "colorToggle";
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.id = 'colorToggle';
   checkbox.checked = colorCodingEnabled;
   
   // Create the label
-  const label = document.createElement("label");
-  label.htmlFor = "colorToggle";
-  label.textContent = "Color code by gender";
-  label.style.marginLeft = "5px";
-  label.style.fontWeight = "normal";
+  const label = document.createElement('label');
+  label.htmlFor = 'colorToggle';
+  label.textContent = 'Color code by gender';
+  label.style.marginLeft = '5px';
+  label.style.fontWeight = 'normal';
   
   // Add event listener to toggle color coding
-  checkbox.addEventListener("change", function() {
+  checkbox.addEventListener('change', function() {
     colorCodingEnabled = this.checked;
     if (colorCodingEnabled) {
       colorCodeCatsByGender();
@@ -118,74 +118,73 @@ function addColorToggle(table) {
 // Function to add column-specific filters
 function addColumnFilters(table, headers) {
   // Create a container for all filter inputs
-  const filterRow = document.createElement("div");
-  filterRow.style.display = "flex";
-  filterRow.style.marginBottom = "15px";
-  filterRow.style.marginTop = "10px";
-  filterRow.style.alignItems = "flex-end";
+  const filterRow = document.createElement('div');
+  filterRow.style.display = 'flex';
+  filterRow.style.marginBottom = '15px';
+  filterRow.style.marginTop = '10px';
+  filterRow.style.alignItems = 'flex-end';
   
   // Get column widths to match filters to columns
   const columnWidths = Array.from(headers).map(header => {
-    const style = window.getComputedStyle(header);
-    return Math.max(100, header.offsetWidth - 10) + "px"; // Minimum width 100px
+    return Math.max(100, header.offsetWidth - 10) + 'px'; // Minimum width 100px
   });
   
   // Create filter inputs for each column
   headers.forEach((header, index) => {
-    const filterContainer = document.createElement("div");
-    filterContainer.style.flex = "1";
-    filterContainer.style.padding = "0 5px";
+    const filterContainer = document.createElement('div');
+    filterContainer.style.flex = '1';
+    filterContainer.style.padding = '0 5px';
     filterContainer.style.maxWidth = columnWidths[index];
     
     // Get header text for label
-    const headerText = header.textContent.trim().replace(/[▲▼]/, "");
+    const headerText = header.textContent.trim().replace(/[▲▼]/, '');
     
     // Create label
-    const label = document.createElement("div");
-    label.textContent = "Filter: " + headerText;
-    label.style.fontSize = "12px";
-    label.style.marginBottom = "3px";
+    const label = document.createElement('div');
+    label.textContent = 'Filter: ' + headerText;
+    label.style.fontSize = '12px';
+    label.style.marginBottom = '3px';
     
     // Create filter based on column type
     let filterInput;
     
     // Column 4 is gender - create toggle buttons instead of dropdown
     if (index === 4) {
-      filterInput = document.createElement("div");
-      filterInput.style.display = "flex";
-      filterInput.style.gap = "5px";
+      filterInput = document.createElement('div');
+      filterInput.style.display = 'flex';
+      filterInput.style.gap = '5px';
       
       // Male toggle button
-      const maleButton = document.createElement("button");
-      maleButton.textContent = "♂";
-      maleButton.title = "Show/hide males";
-      maleButton.type = "button"; // Prevent form submission
-      maleButton.style.flex = "1";
-      maleButton.style.backgroundColor = "#d4e6ff"; // Light blue
-      maleButton.style.border = "1px solid #9ab8e6";
-      maleButton.style.borderRadius = "3px";
-      maleButton.style.padding = "3px 5px";
-      maleButton.style.cursor = "pointer";
-      maleButton.dataset.active = "true"; // Active by default
+      const maleButton = document.createElement('button');
+      maleButton.textContent = '♂';
+      maleButton.title = 'Show/hide males';
+      maleButton.type = 'button'; // Prevent form submission
+      maleButton.style.flex = '1';
+      maleButton.style.backgroundColor = '#d4e6ff'; // Light blue
+      maleButton.style.border = '1px solid #9ab8e6';
+      maleButton.style.borderRadius = '3px';
+      maleButton.style.padding = '3px 5px';
+      maleButton.style.cursor = 'pointer';
+      maleButton.dataset.active = 'true'; // Active by default
       
       // Female toggle button
-      const femaleButton = document.createElement("button");
-      femaleButton.textContent = "♀";
-      femaleButton.title = "Show/hide females";
-      femaleButton.type = "button"; // Prevent form submission
-      femaleButton.style.flex = "1";
-      femaleButton.style.backgroundColor = "#ffd4e6"; // Light pink
-      femaleButton.style.border = "1px solid #e6b1c9";
-      femaleButton.style.borderRadius = "3px";
-      femaleButton.style.padding = "3px 5px";
-      femaleButton.style.cursor = "pointer";
-      femaleButton.dataset.active = "true"; // Active by default
+      const femaleButton = document.createElement('button');
+      femaleButton.textContent = '♀';
+      femaleButton.title = 'Show/hide females';
+      femaleButton.type = 'button'; // Prevent form submission
+      femaleButton.style.flex = '1';
+      femaleButton.style.backgroundColor = '#ffd4e6'; // Light pink
+      femaleButton.style.border = '1px solid #e6b1c9';
+      femaleButton.style.borderRadius = '3px';
+      femaleButton.style.padding = '3px 5px';
+      femaleButton.style.cursor = 'pointer';
+      femaleButton.dataset.active = 'true'; // Active by default
       
       // Function to update button appearance based on state
       const updateButtonState = (button) => {
-        const isActive = button.dataset.active === "true";
-        button.style.opacity = isActive ? "1" : "0.5";
-        button.style.fontWeight = isActive ? "bold" : "normal";
+        const isActive = button.dataset.active === 'true';
+        button.style.opacity = isActive ? '1' : '0.5';
+        button.style.fontWeight = isActive ? 'bold' : 'normal';
       };
       
       // Initialize button states
@@ -193,22 +192,22 @@ function addColumnFilters(table, headers) {
       updateButtonState(femaleButton);
       
       // Add event listeners for toggle buttons
-      maleButton.addEventListener("click", function() {
+      maleButton.addEventListener('click', function() {
         // Toggle active state
-        this.dataset.active = this.dataset.active === "true" ? "false" : "true";
+        this.dataset.active = this.dataset.active === 'true' ? 'false' : 'true';
         updateButtonState(this);
         
         // Update filter
-        updateGenderFilter(maleButton.dataset.active === "true", femaleButton.dataset.active === "true", index);
+        updateGenderFilter(maleButton.dataset.active === 'true', femaleButton.dataset.active === 'true', index);
       });
       
-      femaleButton.addEventListener("click", function() {
+      femaleButton.addEventListener('click', function() {
         // Toggle active state
-        this.dataset.active = this.dataset.active === "true" ? "false" : "true";
+        this.dataset.active = this.dataset.active === 'true' ? 'false' : 'true';
         updateButtonState(this);
         
         // Update filter
-        updateGenderFilter(maleButton.dataset.active === "true", femaleButton.dataset.active === "true", index);
+        updateGenderFilter(maleButton.dataset.active === 'true', femaleButton.dataset.active === 'true', index);
       });
       
       // Add buttons to container
@@ -218,74 +217,74 @@ function addColumnFilters(table, headers) {
     // Column 3 is date - add special date filter
     else if (index === 3) {
       // Create a container for date range
-      filterInput = document.createElement("div");
-      filterInput.style.display = "flex";
-      filterInput.style.flexDirection = "column";
-      filterInput.style.gap = "3px";
+      filterInput = document.createElement('div');
+      filterInput.style.display = 'flex';
+      filterInput.style.flexDirection = 'column';
+      filterInput.style.gap = '3px';
       
       // Year input with clear button
-      const yearRow = document.createElement("div");
-      yearRow.style.display = "flex";
-      yearRow.style.gap = "3px";
-      yearRow.style.marginBottom = "3px";
+      const yearRow = document.createElement('div');
+      yearRow.style.display = 'flex';
+      yearRow.style.gap = '3px';
+      yearRow.style.marginBottom = '3px';
       
       // Year input
-      const yearInput = document.createElement("input");
-      yearInput.type = "number";
-      yearInput.min = "1900";
+      const yearInput = document.createElement('input');
+      yearInput.type = 'number';
+      yearInput.min = '1900';
       yearInput.max = new Date().getFullYear(); // Current year
-      yearInput.placeholder = "Year";
-      yearInput.style.flex = "1";
-      yearInput.style.padding = "3px";
-      yearInput.style.fontSize = "12px";
+      yearInput.placeholder = 'Year';
+      yearInput.style.flex = '1';
+      yearInput.style.padding = '3px';
+      yearInput.style.fontSize = '12px';
       
       // Add year input to row
       yearRow.appendChild(yearInput);
       
       // Date filter buttons
-      const buttonsRow = document.createElement("div");
-      buttonsRow.style.display = "flex";
-      buttonsRow.style.gap = "3px";
+      const buttonsRow = document.createElement('div');
+      buttonsRow.style.display = 'flex';
+      buttonsRow.style.gap = '3px';
       
       // Create filter mode buttons
-      const exactButton = document.createElement("button");
-      exactButton.type = "button";
-      exactButton.textContent = "=";
-      exactButton.title = "Born in exact year";
-      exactButton.style.flex = "1";
-      exactButton.style.fontSize = "12px";
-      exactButton.style.padding = "2px";
-      exactButton.style.backgroundColor = "#f0f0f0";
-      exactButton.style.border = "1px solid #ccc";
-      exactButton.style.borderRadius = "3px";
-      exactButton.style.cursor = "pointer";
-      exactButton.dataset.active = "false";
+      const exactButton = document.createElement('button');
+      exactButton.type = 'button';
+      exactButton.textContent = '=';
+      exactButton.title = 'Born in exact year';
+      exactButton.style.flex = '1';
+      exactButton.style.fontSize = '12px';
+      exactButton.style.padding = '2px';
+      exactButton.style.backgroundColor = '#f0f0f0';
+      exactButton.style.border = '1px solid #ccc';
+      exactButton.style.borderRadius = '3px';
+      exactButton.style.cursor = 'pointer';
+      exactButton.dataset.active = 'false';
       
-      const beforeButton = document.createElement("button");
-      beforeButton.type = "button";
-      beforeButton.textContent = "<";
-      beforeButton.title = "Born before year";
-      beforeButton.style.flex = "1";
-      beforeButton.style.fontSize = "12px";
-      beforeButton.style.padding = "2px";
-      beforeButton.style.backgroundColor = "#f0f0f0";
-      beforeButton.style.border = "1px solid #ccc";
-      beforeButton.style.borderRadius = "3px";
-      beforeButton.style.cursor = "pointer";
-      beforeButton.dataset.active = "false";
+      const beforeButton = document.createElement('button');
+      beforeButton.type = 'button';
+      beforeButton.textContent = '<';
+      beforeButton.title = 'Born before year';
+      beforeButton.style.flex = '1';
+      beforeButton.style.fontSize = '12px';
+      beforeButton.style.padding = '2px';
+      beforeButton.style.backgroundColor = '#f0f0f0';
+      beforeButton.style.border = '1px solid #ccc';
+      beforeButton.style.borderRadius = '3px';
+      beforeButton.style.cursor = 'pointer';
+      beforeButton.dataset.active = 'false';
       
-      const afterButton = document.createElement("button");
-      afterButton.type = "button";
-      afterButton.textContent = ">";
-      afterButton.title = "Born after year";
-      afterButton.style.flex = "1";
-      afterButton.style.fontSize = "12px";
-      afterButton.style.padding = "2px";
-      afterButton.style.backgroundColor = "#f0f0f0";
-      afterButton.style.border = "1px solid #ccc";
-      afterButton.style.borderRadius = "3px";
-      afterButton.style.cursor = "pointer";
-      afterButton.dataset.active = "false";
+      const afterButton = document.createElement('button');
+      afterButton.type = 'button';
+      afterButton.textContent = '>';
+      afterButton.title = 'Born after year';
+      afterButton.style.flex = '1';
+      afterButton.style.fontSize = '12px';
+      afterButton.style.padding = '2px';
+      afterButton.style.backgroundColor = '#f0f0f0';
+      afterButton.style.border = '1px solid #ccc';
+      afterButton.style.borderRadius = '3px';
+      afterButton.style.cursor = 'pointer';
+      afterButton.dataset.active = 'false';
       
       // Add buttons to row
       buttonsRow.appendChild(exactButton);
@@ -298,17 +297,17 @@ function addColumnFilters(table, headers) {
       
       // Function to update button appearance based on state
       const updateButtonState = (button, active) => {
-        button.dataset.active = active ? "true" : "false";
-        button.style.backgroundColor = active ? "#d0d0ff" : "#f0f0f0";
-        button.style.fontWeight = active ? "bold" : "normal";
+        button.dataset.active = active ? 'true' : 'false';
+        button.style.backgroundColor = active ? '#d0d0ff' : '#f0f0f0';
+        button.style.fontWeight = active ? 'bold' : 'normal';
       };
       
       // Function to update the date filter
       const updateDateFilter = () => {
         const year = yearInput.value.trim();
-        const exactActive = exactButton.dataset.active === "true";
-        const beforeActive = beforeButton.dataset.active === "true";
-        const afterActive = afterButton.dataset.active === "true";
+        const exactActive = exactButton.dataset.active === 'true';
+        const beforeActive = beforeButton.dataset.active === 'true';
+        const afterActive = afterButton.dataset.active === 'true';
         
         // Remove filter if no criteria set
         if (!year && !exactActive && !beforeActive && !afterActive) {
@@ -319,7 +318,7 @@ function addColumnFilters(table, headers) {
         
         // Set the filter with appropriate parameters
         activeFilters[index] = {
-          type: "year-filter",
+          type: 'year-filter',
           year: year,
           exact: exactActive,
           before: beforeActive,
@@ -331,13 +330,13 @@ function addColumnFilters(table, headers) {
       };
       
       // Event listeners
-      yearInput.addEventListener("input", function() {
+      yearInput.addEventListener('input', function() {
         updateDateFilter();
       });
       
       // Helper function to handle button clicks
       const handleButtonClick = (clickedButton, otherButtons) => {
-        const wasActive = clickedButton.dataset.active === "true";
+        const wasActive = clickedButton.dataset.active === 'true';
         
         // Toggle the clicked button
         updateButtonState(clickedButton, !wasActive);
@@ -350,15 +349,15 @@ function addColumnFilters(table, headers) {
         updateDateFilter();
       };
       
-      exactButton.addEventListener("click", function() {
+      exactButton.addEventListener('click', function() {
         handleButtonClick(this, [beforeButton, afterButton]);
       });
       
-      beforeButton.addEventListener("click", function() {
+      beforeButton.addEventListener('click', function() {
         handleButtonClick(this, [exactButton, afterButton]);
       });
       
-      afterButton.addEventListener("click", function() {
+      afterButton.addEventListener('click', function() {
         handleButtonClick(this, [exactButton, beforeButton]);
       });
       
@@ -372,27 +371,27 @@ function addColumnFilters(table, headers) {
     }
     // For all other columns, create a text input
     else {
-      filterInput = document.createElement("input");
-      filterInput.type = "text";
-      filterInput.style.width = "100%";
-      filterInput.style.padding = "3px";
-      filterInput.placeholder = "Type to filter...";
+      filterInput = document.createElement('input');
+      filterInput.type = 'text';
+      filterInput.style.width = '100%';
+      filterInput.style.padding = '3px';
+      filterInput.placeholder = 'Type to filter...';
     }
     
     // Add event listener for filtering
     if (index === 4) { // Gender toggle buttons
       // Handled by toggle button event listeners
     } else { // Text input
-      filterInput.addEventListener("input", function() {
+      filterInput.addEventListener('input', function() {
         const value = this.value.trim();
         
-        if (value === "") {
+        if (value === '') {
           // If empty, remove this filter
           delete activeFilters[index];
         } else {
           // Otherwise, add a text filter
           activeFilters[index] = {
-            type: "text",
+            type: 'text',
             value: value.toLowerCase()
           };
         }
@@ -422,7 +421,7 @@ function updateGenderFilter(showMales, showFemales, columnIndex) {
   } else {
     // Otherwise, add a filter for the selected gender
     activeFilters[columnIndex] = {
-      type: "gender-buttons",
+      type: 'gender-buttons',
       showMales: showMales,
       showFemales: showFemales
     };
@@ -434,20 +433,20 @@ function updateGenderFilter(showMales, showFemales, columnIndex) {
 
 // Function to apply all active filters
 function applyFilters() {
-  const table = document.querySelector("table.table.table-condensed.table-hover");
-  const tbody = table.querySelector("tbody");
-  const tfoot = table.querySelector("tfoot");
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
   
   // Get all data rows from tbody
-  const rows = Array.from(tbody.querySelectorAll("tr"));
+  const rows = Array.from(tbody.querySelectorAll('tr'));
   
   // Get the summary row from tfoot
-  const summaryRow = tfoot ? tfoot.querySelector("tr") : null;
+  const summaryRow = tfoot ? tfoot.querySelector('tr') : null;
   
   // Show all rows if no filters active
   if (Object.keys(activeFilters).length === 0) {
     rows.forEach(row => {
-      row.style.display = "";
+      row.style.display = '';
     });
     
     // Reset summary row to show only total count if we have one
@@ -476,31 +475,25 @@ function applyFilters() {
       const cellContent = cell.textContent.trim();
       
       // Apply filter based on type
-      if (filter.type === "text") {
+      if (filter.type === 'text') {
         // Simple text filtering
         if (!cellContent.toLowerCase().includes(filter.value)) {
           showRow = false;
           break;
         }
       } 
-      else if (filter.type === "gender-buttons") {
-        // Gender button filtering
-        const genderLower = cellContent.toLowerCase();
-        const isMale = genderLower === 'm' || genderLower === 'male' || 
-                       genderLower === 'han' || genderLower === 'hankat' || 
-                       genderLower === 'hann' || genderLower === 'hannkatt' || 
-                       genderLower === 'uros';
-        const isFemale = genderLower === 'f' || genderLower === 'female' || 
-                         genderLower === 'hun' || genderLower === 'hunkat' || 
-                         genderLower === 'hunn' || genderLower === 'hunnkatt' || 
-                         genderLower === 'naaras';
-        
-        if (!(filter.showMales && isMale) && !(filter.showFemales && isFemale)) {
+      else if (filter.type === 'gender-buttons') {
+        // Gender button filtering - uses isMale/isFemale from lib/gender-utils.js
+        const genderText = cellContent.trim();
+        const catIsMale = isMale(genderText);
+        const catIsFemale = isFemale(genderText);
+
+        if (!(filter.showMales && catIsMale) && !(filter.showFemales && catIsFemale)) {
           showRow = false;
           break;
         }
       }
-      else if (filter.type === "date-range") {
+      else if (filter.type === 'date-range') {
         // Date range filtering
         if (filter.from || filter.to) {
           // Parse the date
@@ -542,7 +535,7 @@ function applyFilters() {
           }
         }
       }
-      else if (filter.type === "year-filter") {
+      else if (filter.type === 'year-filter') {
         // Year-based filtering
         if (!filter.year && !filter.exact && !filter.before && !filter.after) {
           continue; // Skip this filter if no criteria
@@ -554,7 +547,7 @@ function applyFilters() {
         
         // Only process if it looks like a valid date format
         if (parts.length === 3) {
-          const [day, month, year] = parts;
+          const year = parts[2];
           
           // If year is specified, check conditions
           if (filter.year) {
@@ -580,7 +573,7 @@ function applyFilters() {
     }
     
     // Show or hide row based on filter results
-    row.style.display = showRow ? "" : "none";
+    row.style.display = showRow ? '' : 'none';
     
     // Count visible rows
     if (showRow) {
@@ -598,14 +591,14 @@ function applyFilters() {
 // Function to reset summary row to original state
 function resetSummaryRow(summaryRow) {
   // Get the cell with the count (the one with colspan)
-  const countCell = summaryRow.querySelector("td[colspan]");
+  const countCell = summaryRow.querySelector('td[colspan]');
   
   // If we've modified it before, it will have a data-original attribute
-  if (countCell && countCell.hasAttribute("data-original")) {
+  if (countCell && countCell.hasAttribute('data-original')) {
     // Get the span element inside
-    const span = countCell.querySelector("span");
+    const span = countCell.querySelector('span');
     if (span) {
-      span.textContent = countCell.getAttribute("data-original");
+      span.textContent = countCell.getAttribute('data-original');
     }
   }
 }
@@ -613,25 +606,25 @@ function resetSummaryRow(summaryRow) {
 // Function to update summary row with filtered/total counts
 function updateSummaryRowCounts(summaryRow, visibleCount, totalCount) {
   // Get the cell with the count (the one with colspan)
-  const countCell = summaryRow.querySelector("td[colspan]");
+  const countCell = summaryRow.querySelector('td[colspan]');
   
   if (!countCell) return;
   
   // Get the span element with the count
-  const span = countCell.querySelector("span");
+  const span = countCell.querySelector('span');
   
   if (!span) return;
   
   // Store original text if we haven't already
-  if (!countCell.hasAttribute("data-original")) {
-    countCell.setAttribute("data-original", span.textContent);
+  if (!countCell.hasAttribute('data-original')) {
+    countCell.setAttribute('data-original', span.textContent);
   }
   
   // Get the original text
-  const originalText = countCell.getAttribute("data-original");
+  const originalText = countCell.getAttribute('data-original');
   
   // Extract just the number suffix (e.g., "stk.", "kpl")
-  const countSuffix = originalText.replace(/\d+/g, "").trim();
+  const countSuffix = originalText.replace(/\d+/g, '').trim();
   
   // Update the text to show both filtered and total counts
   span.textContent = `${visibleCount} / ${totalCount} ${countSuffix}`;
@@ -639,17 +632,17 @@ function updateSummaryRowCounts(summaryRow, visibleCount, totalCount) {
 
 // Function to remove color coding
 function removeColorCoding() {
-  const table = document.querySelector("table.table.table-condensed.table-hover");
-  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
   
   rows.forEach(row => {
-    row.style.backgroundColor = ""; // Remove background color
+    row.style.backgroundColor = ''; // Remove background color
   });
 }
 
 // Function to color code cats by gender
 function colorCodeCatsByGender() {
-  console.log("Applying color coding for cats by gender");
+  console.log('Applying color coding for cats by gender');
   
   // First remove any existing color coding
   removeColorCoding();
@@ -657,29 +650,21 @@ function colorCodeCatsByGender() {
   // Only apply colors if the feature is enabled
   if (!colorCodingEnabled) return;
   
-  const table = document.querySelector("table.table.table-condensed.table-hover");
-  const rows = Array.from(table.querySelectorAll("tbody tr"));
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
   
   // Process all rows and check if the last one is a summary row
-  rows.forEach((row, index) => {
+  rows.forEach((row, _index) => {
     // Check if this is a data row (has the gender cell with content)
     const genderCell = row.cells[4];
     if (genderCell && genderCell.innerText.trim()) {
-      const gender = genderCell.innerText.trim().toLowerCase();
-      
-      // Apply different colors based on gender across different languages
-      // Male: m, male, han, hann, hannkatt, uros
-      // Female: f, female, hun, hunn, hunnkatt, naaras
-      if (gender === 'm' || gender === 'male' || 
-          gender === 'han' || gender === 'hankat' || 
-          gender === 'hann' || gender === 'hannkatt' || 
-          gender === 'uros') {
-        row.style.backgroundColor = "#d4e6ff"; // Light blue for males
-      } else if (gender === 'f' || gender === 'female' || 
-                gender === 'hun' || gender === 'hunkat' || 
-                gender === 'hunn' || gender === 'hunnkatt' || 
-                gender === 'naaras') {
-        row.style.backgroundColor = "#ffd4e6"; // Light pink for females
+      const genderText = genderCell.innerText.trim();
+
+      // Apply different colors based on gender - uses isMale/isFemale from lib/gender-utils.js
+      if (isMale(genderText)) {
+        row.style.backgroundColor = '#d4e6ff'; // Light blue for males
+      } else if (isFemale(genderText)) {
+        row.style.backgroundColor = '#ffd4e6'; // Light pink for females
       }
     }
   });
@@ -691,8 +676,6 @@ function clearAllFilters() {
   activeFilters = {};
   
   // Reset all filter input elements
-  const table = document.querySelector("table.table.table-condensed.table-hover");
-  
   // Reset text inputs
   const textInputs = document.querySelectorAll('input[type="text"], input[type="number"]');
   textInputs.forEach(input => {
@@ -729,26 +712,21 @@ function sortColumnREG(a, b) {
 
 // Custom sort function for column 1
 function sortColumnName(a, b) {
-  const textA = a.querySelector("a").innerText.trim();
-  const textB = b.querySelector("a").innerText.trim();
+  const textA = a.querySelector('a').innerText.trim();
+  const textB = b.querySelector('a').innerText.trim();
   return textA.localeCompare(textB);
 }
 
 // Custom sort function for column 2
 function sortColumnBreed(a, b) {
-  const textA = a.querySelector("span").innerText.trim();
-  const textB = b.querySelector("span").innerText.trim();
+  const textA = a.querySelector('span').innerText.trim();
+  const textB = b.querySelector('span').innerText.trim();
   return textA.localeCompare(textB);
 }
 
 // Custom sort function for column 3 (Date of Birth)
+// Uses parseDate from lib/date-utils.js
 function sortColumnDOB(a, b) {
-
-  const parseDate = (dateStr) => {
-    const [day, month, year] = dateStr.split(/[-.]/).map(Number);
-    return new Date(year, month - 1, day);
-  };
-
   const dateA = parseDate(a.innerText);
   const dateB = parseDate(b.innerText);
 
@@ -763,11 +741,11 @@ function sortColumnGender(a, b) {
 }
 
 function sortTable(columnIndex, ascending) {
-  console.log("Sort by column: " + columnIndex);
+  console.log('Sort by column: ' + columnIndex);
 
-  const table = document.querySelector("table.table.table-condensed.table-hover");
-  const tbody = table.querySelector("tbody");
-  const rows = Array.from(tbody.querySelectorAll("tr"));
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
 
   const sortFunctions = [sortColumnREG, sortColumnName, sortColumnBreed, sortColumnDOB, sortColumnGender];
 
@@ -798,15 +776,15 @@ function sortTable(columnIndex, ascending) {
 
 // Function to update the sort indicator on the column header
 function updateSortIndicator(columnIndex, ascending) {
-  const headers = document.querySelectorAll("th");
+  const headers = document.querySelectorAll('th');
   // First, remove any existing indicators from all headers
   headers.forEach(header => {
-    header.innerHTML = header.innerHTML.replace(/ \u25B2|\u25BC/g, ""); // Removes existing arrows
+    header.innerHTML = header.innerHTML.replace(/ \u25B2|\u25BC/g, ''); // Removes existing arrows
   });
 
   // Then, add the indicator to the current header
   const currentHeader = headers[columnIndex];
-  currentHeader.innerHTML += ascending ? " \u25B2" : " \u25BC"; // Adds an arrow up or down
+  currentHeader.innerHTML += ascending ? ' \u25B2' : ' \u25BC'; // Adds an arrow up or down
   
   // Reapply color coding after sorting
   if (colorCodingEnabled) {

@@ -11,7 +11,9 @@ Chrome extension that enhances the Nordic FIFe cat pedigree databases (fdkat.dk,
 This is a **Manifest V3 Chrome extension** with a single content script architecture:
 
 - `manifest.json` - Extension configuration; content script runs on all three Nordic FIFe sites
-- `sorter.js` - Single content script that handles all functionality (no background scripts or popups)
+- `lib/gender-utils.js` - Gender detection utilities (loaded first)
+- `lib/date-utils.js` - Date parsing utilities (loaded second)
+- `sorter.js` - Main content script that handles all functionality (no background scripts or popups)
 
 ### How It Works
 
@@ -35,13 +37,41 @@ Gender matching handles terms in Danish, Norwegian, Finnish, and English:
 
 ## Development
 
-### Testing
+### Commands
+
+```bash
+npm test              # Run Jest test suite
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
+npm run lint          # Run ESLint
+npm run lint:fix      # Auto-fix ESLint issues
+npm run package       # Create ZIP for Chrome Web Store
+npm run setup:keys    # Guide for Chrome Web Store API credentials
+```
+
+### Manual Testing
 
 Load the extension in Chrome developer mode:
 1. Go to `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked" and select this directory
 4. Navigate to one of the target sites to test
+
+### Project Structure
+
+```
+lib/
+  gender-utils.js   # Gender detection (isMale, isFemale) - testable
+  date-utils.js     # Date parsing (parseDate, extractYear) - testable
+tests/
+  gender-utils.test.js
+  date-utils.test.js
+scripts/
+  package.sh        # Chrome Web Store packaging
+  setup-credentials.sh
+.github/workflows/
+  ci.yml            # GitHub Actions CI pipeline
+```
 
 ### Target Sites
 
