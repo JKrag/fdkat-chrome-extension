@@ -1,6 +1,6 @@
 {
   "name": "kissatdb-addons",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "Chrome extension that adds sorting, filtering, and visual enhancements to Nordic FIFe cat pedigree databases",
   "private": true,
   "scripts": {
