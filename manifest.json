@@ -18,8 +18,11 @@
         {
             "matches": [
                 "https://fdkat.dk/*",
+                "https://www.fdkat.dk/*",
                 "https://kissat.kissaliitto.fi/*",
-                "https://katt.nrr.no/*"
+                "https://www.kissat.kissaliitto.fi/*",
+                "https://katt.nrr.no/*",
+                "https://www.katt.nrr.no/*"
             ],
             "js": [
                 "lib/gender-utils.js",
