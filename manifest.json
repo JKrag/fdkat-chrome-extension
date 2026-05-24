@@ -27,7 +27,7 @@
             "js": [
                 "lib/gender-utils.js",
                 "lib/date-utils.js",
-                "sorter.js"
+                "content.js"
             ],
             "run_at": "document_idle"
         }
