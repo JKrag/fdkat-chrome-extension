@@ -64,10 +64,4 @@ The footer shows the total number of groups alongside the cat count, and groupin
 
 ## Roadmap
 
-Here are some of the features I'm planning to add in the future:
-
-* Add similar sorting and filtering to some of the tables on an individual cat's data pages (show results, kittens, etc.)
-* Additional group-by concepts: hair length (longhair/shorthair based on breed), color class, country of origin
-* Localise the group-by UI and group header labels for Danish, Norwegian and Finnish
-
-If you have any suggestions for features, please open an issue on GitHub or let me know in some other way.
+See [ROADMAP.md](ROADMAP.md) for planned features. Suggestions welcome — open an issue on GitHub.
