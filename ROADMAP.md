@@ -32,3 +32,7 @@ See [WORLD-KNOWLEDGE.md](WORLD-KNOWLEDGE.md) for tab/DOM structure.
 - Hair length grouping (longhair/shorthair based on breed code)
 - Country of origin grouping
 - Localization of group-by UI labels (Danish, Norwegian, Finnish)
+
+### Internal improvements
+
+- Split `content.js` into `lib/search-results.js` and `lib/cat-details.js` once the cat-details section grows heavy enough to warrant it (likely around the time show/offspring table sorting is added)

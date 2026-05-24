@@ -14,11 +14,11 @@ See [FEATURES.md](FEATURES.md) for what's implemented and [ROADMAP.md](ROADMAP.m
 - `manifest.json` — injects on all three Nordic FIFe site domains
 - `lib/gender-utils.js` — `isMale()` / `isFemale()`, multi-language (loaded first)
 - `lib/date-utils.js` — `parseDate()` / `extractYear()` (loaded second)
-- `sorter.js` — main content script (~1000 lines); all runtime logic lives here
+- `content.js` — main content script (~1100 lines); all runtime logic lives here
 
 ### How It Works
 
-`sorter.js` runs at `document_idle`. It checks for the search results table selector; if present it injects filter controls, makes column headers sortable, and applies gender coloring. Key internal structures:
+`content.js` runs at `document_idle`. It checks for the search results table selector; if present it injects filter controls, makes column headers sortable, and applies gender coloring. Key internal structures:
 
 - `activeFilters` — tracks active filters per column index; types: `text`, `gender-buttons`, `date-range`, `year-filter`
 - `sortFunctions[]` — one sort comparator per column
@@ -29,6 +29,8 @@ For DOM selectors and page structure details, see [WORLD-KNOWLEDGE.md](WORLD-KNO
 ## Development
 
 Keep markdown files markdownlint-compliant.
+
+When making changes that require a reload of the unpacked extension, update the version number in `manifest.json` (patch level) so I can verify that the new version is loaded. When we proceed to publishing a real new version, with feature(s) that are tested and solid,then we will make a real decision on appropriate semantic versioning increase.
 
 ### Commands
 
