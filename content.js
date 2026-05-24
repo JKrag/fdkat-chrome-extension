@@ -1041,14 +1041,9 @@ function initCatDetailsPage() {
 }
 
 function buildPedigreeColorMap(table) {
-  const DUPE_COLORS = [
-    '#fff3b0', '#ffdac1', '#b5ead7', '#e2b4bd',
-    '#c7ceea', '#b5d5c5', '#f9c2c2', '#d4c5e2',
-  ];
-
-  // Step A — build cell data by reconstructing table positions via rowspan tracking
+  // DOM traversal — reconstruct table positions via rowspan tracking
   const rows = table.querySelectorAll('tbody tr');
-  const colOccupied = {}; // col index -> next free row index
+  const colOccupied = {};
   const cellData = [];
 
   rows.forEach((tr, rowIdx) => {
@@ -1066,35 +1061,7 @@ function buildPedigreeColorMap(table) {
     });
   });
 
-  // Step B — find duplicates
-  const occurrences = new Map();
-  cellData.forEach(cell => {
-    if (!occurrences.has(cell.catId)) occurrences.set(cell.catId, []);
-    occurrences.get(cell.catId).push(cell);
-  });
-  const dupEntries = [...occurrences.entries()].filter(([, cells]) => cells.length > 1);
-  if (dupEntries.length === 0) return { cellData, colorMap: new Map() };
-
-  // Step C — suppress cats whose every occurrence falls within the row range of
-  // some occurrence of a different (shallower) duplicate ancestor
-  function allCoveredBy(eCells, dCells) {
-    return eCells.every(eCell =>
-      dCells.some(dCell => dCell.rowStart <= eCell.rowStart && eCell.rowEnd <= dCell.rowEnd)
-    );
-  }
-
-  const suppressed = new Set();
-  dupEntries.forEach(([eId, eCells]) => {
-    const covered = dupEntries.some(([dId, dCells]) => dId !== eId && allCoveredBy(eCells, dCells));
-    if (covered) suppressed.add(eId);
-  });
-
-  // Step D — assign colours to non-suppressed duplicates
-  const colorMap = new Map();
-  dupEntries
-    .filter(([id]) => !suppressed.has(id))
-    .forEach(([id], i) => colorMap.set(id, DUPE_COLORS[i % DUPE_COLORS.length]));
-
+  const colorMap = computePedigreeColors(cellData);
   return { cellData, colorMap };
 }
 
