@@ -30,7 +30,7 @@ For DOM selectors and page structure details, see [WORLD-KNOWLEDGE.md](WORLD-KNO
 
 Keep markdown files markdownlint-compliant.
 
-When making changes that require a reload of the unpacked extension, update the version number in `manifest.json` (patch level) so I can verify that the new version is loaded. When we proceed to publishing a real new version, with feature(s) that are tested and solid,then we will make a real decision on appropriate semantic versioning increase.
+When making changes that require a reload of the unpacked extension, update the version number in `manifest.json` (patch level) so I can verify that the new version is loaded. When we proceed to publishing a real new version, with feature(s) that are tested and solid, then we will make a real decision on appropriate semantic versioning increase.
 
 ### Commands
 
