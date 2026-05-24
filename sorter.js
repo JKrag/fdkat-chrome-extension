@@ -40,9 +40,13 @@ const GROUP_DEFINITIONS = [
 
 let currentGrouping = 'none';
 
-// Listen for the window load event
-window.addEventListener('load', function () {
+function init() {
   console.log('Page reloaded');
+
+  if (window.location.pathname.includes('perusnaytto_kissa')) {
+    initCatDetailsPage();
+    return;
+  }
 
   // Check if the table has been added
   const table = document.querySelector('table.table.table-condensed.table-hover');
@@ -83,7 +87,13 @@ window.addEventListener('load', function () {
   } else {
     console.log('Table not found');
   }
-});
+}
+
+if (document.readyState === 'complete') {
+  init();
+} else {
+  window.addEventListener('load', init);
+}
 
 // Function to add the color toggle control
 function addColorToggle(table) {
@@ -1014,4 +1024,47 @@ function updateSortIndicator(columnIndex, ascending) {
   if (colorCodingEnabled) {
     colorCodeCatsByGender();
   }
+}
+
+// ── Cat details page ──────────────────────────────────────────────────────────
+
+function initCatDetailsPage() {
+  highlightPedigreeDuplicates();
+}
+
+function highlightPedigreeDuplicates() {
+  const pedigreeTable = document.querySelector('table.sukupuu');
+  if (!pedigreeTable) return;
+
+  const DUPE_COLORS = [
+    '#fff3b0', '#b5ead7', '#ffdac1', '#c7ceea',
+    '#e2b4bd', '#b5d5c5', '#f9c2c2', '#d4c5e2',
+  ];
+
+  const catLinks = pedigreeTable.querySelectorAll('a[href*="perusnaytto_kissa.aspx"]');
+
+  const idCounts = new Map();
+  catLinks.forEach(link => {
+    const match = link.href.match(/[?&]id=(\d+)/);
+    if (match) idCounts.set(match[1], (idCounts.get(match[1]) || 0) + 1);
+  });
+
+  const colorMap = new Map();
+  [...idCounts.entries()]
+    .filter(([, count]) => count > 1)
+    .forEach(([id], i) => colorMap.set(id, DUPE_COLORS[i % DUPE_COLORS.length]));
+
+  if (colorMap.size === 0) return;
+
+  catLinks.forEach(link => {
+    const match = link.href.match(/[?&]id=(\d+)/);
+    if (!match) return;
+    const color = colorMap.get(match[1]);
+    if (color) {
+      const td = link.closest('td');
+      if (td) td.style.backgroundColor = color;
+    }
+  });
+
+  console.log(`Pedigree: highlighted ${colorMap.size} duplicate ancestor(s)`);
 }

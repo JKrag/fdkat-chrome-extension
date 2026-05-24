@@ -31,3 +31,11 @@ Group headers show the group name and cat count. A summary line at both top and 
 ### Visual
 
 - Rows are colored by gender (subtle background tint)
+
+## Cat Details Page
+
+Features activate automatically on `perusnaytto_kissa.aspx` pages.
+
+### Pedigree duplicate highlighting
+
+Ancestors that appear more than once in the pedigree tree are highlighted with a distinct background colour per unique duplicate, making inbreeding patterns immediately visible.
