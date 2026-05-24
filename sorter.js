@@ -5,6 +5,41 @@ let ascending = true;
 let colorCodingEnabled = true; // Default to enabled
 let activeFilters = {}; // Track active filters for each column
 
+const GROUP_DEFINITIONS = [
+  { value: 'none',      label: 'None' },
+  {
+    value: 'birthdate', label: 'Birth date (litters)',
+    getKey:  row => row.cells[3]?.innerText.trim() || '',
+    compare: (a, b) => parseDate(a.cells[3]?.innerText.trim() || '') - parseDate(b.cells[3]?.innerText.trim() || ''),
+  },
+  {
+    value: 'birthyear', label: 'Birth year',
+    getKey:  row => String(extractYear(row.cells[3]?.innerText.trim()) ?? 'Unknown'),
+    compare: (a, b) => (extractYear(a.cells[3]?.innerText.trim()) ?? 0) - (extractYear(b.cells[3]?.innerText.trim()) ?? 0),
+  },
+  {
+    value: 'breed', label: 'Breed',
+    getKey:  row => row.cells[2]?.querySelector('span')?.innerText.trim() || '',
+    compare: (a, b) => (a.cells[2]?.querySelector('span')?.innerText.trim() || '').localeCompare(b.cells[2]?.querySelector('span')?.innerText.trim() || ''),
+  },
+  {
+    value: 'registry', label: 'Registry',
+    getKey: row => {
+      const reg = row.cells[0]?.innerText.trim() || '';
+      if (/\bLO\b/.test(reg)) return 'LO (Livre d\'Origine)';
+      if (/RX|REIX|RIEX/.test(reg)) return 'Experimental';
+      return 'Other';
+    },
+    compare: (a, b) => {
+      const order = { 'LO (Livre d\'Origine)': 0, 'Experimental': 1, 'Other': 2 };
+      const def = GROUP_DEFINITIONS.find(d => d.value === 'registry');
+      return (order[def.getKey(a)] ?? 3) - (order[def.getKey(b)] ?? 3);
+    },
+  },
+];
+
+let currentGrouping = 'none';
+
 // Listen for the window load event
 window.addEventListener('load', function () {
   console.log('Page reloaded');
@@ -107,8 +142,44 @@ function addColorToggle(table) {
   toggleDiv.appendChild(checkbox);
   toggleDiv.appendChild(label);
   
+  // Create a "Group by" dropdown (center)
+  const groupByDiv = document.createElement('div');
+  groupByDiv.style.display = 'flex';
+  groupByDiv.style.alignItems = 'center';
+  groupByDiv.style.gap = '6px';
+
+  const groupByLabel = document.createElement('label');
+  groupByLabel.textContent = 'Group by:';
+  groupByLabel.style.fontSize = '12px';
+  groupByLabel.style.fontWeight = 'normal';
+
+  const groupBySelect = document.createElement('select');
+  groupBySelect.id = 'groupBySelect';
+  groupBySelect.style.padding = '3px 5px';
+  groupBySelect.style.border = '1px solid #ccc';
+  groupBySelect.style.borderRadius = '3px';
+  groupBySelect.style.backgroundColor = '#f0f0f0';
+  groupBySelect.style.fontSize = '12px';
+  groupBySelect.style.cursor = 'pointer';
+
+  GROUP_DEFINITIONS.forEach(def => {
+    const opt = document.createElement('option');
+    opt.value = def.value;
+    opt.textContent = def.label;
+    groupBySelect.appendChild(opt);
+  });
+
+  groupBySelect.addEventListener('change', function() {
+    currentGrouping = this.value;
+    applyGrouping(true); // sort rows by group key when switching grouping
+  });
+
+  groupByDiv.appendChild(groupByLabel);
+  groupByDiv.appendChild(groupBySelect);
+
   // Add both controls to the container
   controlsContainer.appendChild(clearFiltersDiv);
+  controlsContainer.appendChild(groupByDiv);
   controlsContainer.appendChild(toggleDiv);
   
   // Insert the controls before the table
@@ -446,14 +517,15 @@ function applyFilters() {
   // Show all rows if no filters active
   if (Object.keys(activeFilters).length === 0) {
     rows.forEach(row => {
-      row.style.display = '';
+      if (!row.dataset.groupHeader) row.style.display = '';
     });
-    
+
     // Reset summary row to show only total count if we have one
     if (summaryRow) {
       resetSummaryRow(summaryRow);
     }
-    
+
+    applyGrouping();
     return;
   }
   
@@ -462,6 +534,7 @@ function applyFilters() {
   
   // Apply filters to each row
   rows.forEach((row) => {
+    if (row.dataset.groupHeader) return;
     let showRow = true;
     
     // Check each active filter
@@ -583,9 +656,11 @@ function applyFilters() {
   
   // Always show summary row and update counts
   if (summaryRow) {
-    // Update the summary text to show filtered/total counts
-    updateSummaryRowCounts(summaryRow, visibleRowCount, rows.length);
+    const dataRowCount = rows.filter(r => !r.dataset.groupHeader).length;
+    updateSummaryRowCounts(summaryRow, visibleRowCount, dataRowCount);
   }
+
+  applyGrouping();
 }
 
 // Function to reset summary row to original state
@@ -703,6 +778,107 @@ function clearAllFilters() {
   applyFilters();
 }
 
+// Function to apply group-by grouping to visible rows.
+// Pass sortByKey=true when changing the grouping to first sort all rows by group key.
+function applyGrouping(sortByKey = false) {
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  const tfoot = table.querySelector('tfoot');
+
+  // Remove any existing group header rows
+  tbody.querySelectorAll('tr[data-group-header]').forEach(r => r.remove());
+
+  const summaryRow = tfoot ? tfoot.querySelector('tr') : null;
+
+  if (currentGrouping === 'none') {
+    updateGroupCount(summaryRow, null);
+    return;
+  }
+
+  const def = GROUP_DEFINITIONS.find(d => d.value === currentGrouping);
+  if (!def) return;
+
+  // When switching grouping, re-order all data rows by the group key so groups are contiguous
+  if (sortByKey && def.compare) {
+    const allRows = [...tbody.querySelectorAll('tr')];
+    // Identify the summary row by its colspan td, not by position
+    const summaryIdx = allRows.findIndex(r => r.querySelector('td[colspan]'));
+    const tbodySummary = summaryIdx !== -1 ? allRows.splice(summaryIdx, 1)[0] : null;
+    allRows.sort(def.compare);
+    while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+    allRows.forEach(row => tbody.appendChild(row));
+    if (tbodySummary) tbody.appendChild(tbodySummary);
+  }
+
+  // Collect visible data rows in DOM order, excluding summary rows (td with colspan)
+  const rows = [...tbody.querySelectorAll('tr')].filter(r =>
+    r.style.display !== 'none' && !r.querySelector('td[colspan]')
+  );
+
+  // Group consecutive rows by key
+  const groups = [];
+  let lastKey = null;
+  for (const row of rows) {
+    const key = def.getKey(row);
+    if (key !== lastKey) {
+      groups.push({ key, rows: [] });
+      lastKey = key;
+    }
+    groups[groups.length - 1].rows.push(row);
+  }
+
+  // Insert a header row before the first row of each group
+  for (const group of groups) {
+    const headerRow = buildGroupHeaderRow(group.key, group.rows.length);
+    tbody.insertBefore(headerRow, group.rows[0]);
+  }
+
+  updateGroupCount(summaryRow, groups.length);
+}
+
+function buildGroupHeaderRow(key, count) {
+  const tr = document.createElement('tr');
+  tr.dataset.groupHeader = 'true';
+  tr.style.backgroundColor = '#e8e8e8';
+
+  const td = document.createElement('td');
+  td.colSpan = 5;
+  td.style.padding = '4px 8px';
+  td.style.borderTop = '2px solid #bbb';
+  td.style.fontWeight = 'bold';
+  td.style.fontSize = '12px';
+  td.style.color = '#555';
+  td.textContent = `${key}  (${count} ${count === 1 ? 'cat' : 'cats'})`;
+
+  tr.appendChild(td);
+  return tr;
+}
+
+function updateGroupCount(summaryRow, groupCount) {
+  if (!summaryRow) return;
+  const countCell = summaryRow.querySelector('td[colspan]');
+  if (!countCell) return;
+
+  let groupSpan = countCell.querySelector('#fdkat-group-count');
+
+  if (groupCount === null) {
+    if (groupSpan) groupSpan.remove();
+    return;
+  }
+
+  if (!groupSpan) {
+    groupSpan = document.createElement('span');
+    groupSpan.id = 'fdkat-group-count';
+    groupSpan.style.marginLeft = '8px';
+    groupSpan.style.color = '#666';
+    countCell.appendChild(groupSpan);
+  }
+
+  groupSpan.textContent = `| ${groupCount} ${groupCount === 1 ? 'group' : 'groups'}`;
+}
+
 // Custom sort function for column 0
 function sortColumnREG(a, b) {
   const textA = a.innerText.trim();
@@ -745,19 +921,36 @@ function sortTable(columnIndex, ascending) {
 
   const table = document.querySelector('table.table.table-condensed.table-hover');
   const tbody = table.querySelector('tbody');
-  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.dataset.groupHeader);
 
   const sortFunctions = [sortColumnREG, sortColumnName, sortColumnBreed, sortColumnDOB, sortColumnGender];
-
-  // Sort rows based on the content of the specified column
-  rows.sort((rowA, rowB) => {
-    const cellA = rowA.cells[columnIndex];
-    const cellB = rowB.cells[columnIndex];
-    const compare = sortFunctions[columnIndex](cellA, cellB);
+  const sorter = (rowA, rowB) => {
+    const compare = sortFunctions[columnIndex](rowA.cells[columnIndex], rowB.cells[columnIndex]);
     return ascending ? compare : -compare;
-  });
+  };
+
   // Remove the last row (summary row)
   const summaryRow = rows.pop();
+
+  if (currentGrouping !== 'none') {
+    // Sort within each group, keeping group order stable
+    const def = GROUP_DEFINITIONS.find(d => d.value === currentGrouping);
+    const groupOrder = [];
+    const groupMap = new Map();
+    for (const row of rows) {
+      const key = def.getKey(row);
+      if (!groupMap.has(key)) {
+        groupMap.set(key, []);
+        groupOrder.push(key);
+      }
+      groupMap.get(key).push(row);
+    }
+    groupOrder.forEach(key => groupMap.get(key).sort(sorter));
+    rows.length = 0;
+    groupOrder.forEach(key => rows.push(...groupMap.get(key)));
+  } else {
+    rows.sort(sorter);
+  }
 
   // Clear existing rows in tbody
   while (tbody.firstChild) {
@@ -771,7 +964,7 @@ function sortTable(columnIndex, ascending) {
   tbody.appendChild(summaryRow);
 
   updateSortIndicator(columnIndex, ascending);
-
+  applyGrouping();
 }
 
 // Function to update the sort indicator on the column header

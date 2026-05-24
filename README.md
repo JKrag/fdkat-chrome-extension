@@ -3,7 +3,12 @@
 This is a small Chrome extension that attempts to address some of the shortcomings of the pedigree database systems of the 3 nordic FIFe clubs in Finland, Norway and Denmark.
 These 3 clubs currently use the same system, originally developed by the Finnish organization and licensed to the other 2 clubs.
 
-The plan is to make this extension available in the Chrome Web Store, but for now you can install it manually.
+Links:
+- [fdkat.dk](https://fdkat.dk/kissat.aspx)
+- [katt.nrr.no](https://katt.nrr.no/Katter/kissat)
+- [kissat.kissaliitto.fi](https://kissat.kissaliitto.fi/kissat.aspx)
+
+This extension is available in the Chrome Web Store, but you can also install it manually.
 
 ## Manual installation
 
@@ -44,10 +49,25 @@ Column-specific filters are now available above each column in the search result
 
 These column-specific filters give you more precise control over your search results and can be combined for advanced filtering. For example, you can filter for female cats born within a specific date range that have certain keywords in their name.
 
+### Group by
+
+A "Group by" dropdown above the search results lets you group cats by logical concepts, making patterns in large result sets much easier to spot. Groups are displayed as header rows within the table showing the group name and cat count. Sorting within a group is fully supported — clicking a column header sorts cats within each group independently.
+
+Available groupings:
+
+- **Birth date (litters)** — groups cats sharing the same date of birth, ideal for identifying litter mates in a breeder's catalogue
+- **Birth year** — groups by year of birth, useful for spotting generational patterns across decades
+- **Breed** — groups by breed, handy when a breeder has worked with multiple breeds over the years
+- **Registry** — groups by registration type: *LO (Livre d'Origine)* (the standard registry used by all three Nordic clubs), *Experimental* (RX/REIX registrations), and *Other*
+
+The footer shows the total number of groups alongside the cat count, and grouping composes correctly with all existing filters.
+
 ## Roadmap
 
 Here are some of the features I'm planning to add in the future:
 
-* Add similar sorting to some of the tables on an individual cats data pages (show results, kittens, etc.)
+* Add similar sorting and filtering to some of the tables on an individual cat's data pages (show results, kittens, etc.)
+* Additional group-by concepts: hair length (longhair/shorthair based on breed), color class, country of origin
+* Localise the group-by UI and group header labels for Danish, Norwegian and Finnish
 
 If you have any suggestions for features, please open an issue on GitHub or let me know in some other way.
