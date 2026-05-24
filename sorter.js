@@ -1029,42 +1029,102 @@ function updateSortIndicator(columnIndex, ascending) {
 // ── Cat details page ──────────────────────────────────────────────────────────
 
 function initCatDetailsPage() {
-  highlightPedigreeDuplicates();
-}
-
-function highlightPedigreeDuplicates() {
   const pedigreeTable = document.querySelector('table.sukupuu');
   if (!pedigreeTable) return;
 
-  const DUPE_COLORS = [
-    '#fff3b0', '#b5ead7', '#ffdac1', '#c7ceea',
-    '#e2b4bd', '#b5d5c5', '#f9c2c2', '#d4c5e2',
-  ];
-
-  const catLinks = pedigreeTable.querySelectorAll('a[href*="perusnaytto_kissa.aspx"]');
-
-  const idCounts = new Map();
-  catLinks.forEach(link => {
-    const match = link.href.match(/[?&]id=(\d+)/);
-    if (match) idCounts.set(match[1], (idCounts.get(match[1]) || 0) + 1);
-  });
-
-  const colorMap = new Map();
-  [...idCounts.entries()]
-    .filter(([, count]) => count > 1)
-    .forEach(([id], i) => colorMap.set(id, DUPE_COLORS[i % DUPE_COLORS.length]));
-
+  const { cellData, colorMap } = buildPedigreeColorMap(pedigreeTable);
   if (colorMap.size === 0) return;
 
-  catLinks.forEach(link => {
-    const match = link.href.match(/[?&]id=(\d+)/);
-    if (!match) return;
-    const color = colorMap.get(match[1]);
-    if (color) {
-      const td = link.closest('td');
-      if (td) td.style.backgroundColor = color;
+  addPedigreeToggle(pedigreeTable, colorMap, cellData);
+  applyPedigreeColors(colorMap, cellData);
+  console.log(`Pedigree: ${colorMap.size} root-cause duplicate(s) highlighted`);
+}
+
+function buildPedigreeColorMap(table) {
+  const DUPE_COLORS = [
+    '#fff3b0', '#ffdac1', '#b5ead7', '#e2b4bd',
+    '#c7ceea', '#b5d5c5', '#f9c2c2', '#d4c5e2',
+  ];
+
+  // Step A — build cell data by reconstructing table positions via rowspan tracking
+  const rows = table.querySelectorAll('tbody tr');
+  const colOccupied = {}; // col index -> next free row index
+  const cellData = [];
+
+  rows.forEach((tr, rowIdx) => {
+    let col = 0;
+    tr.querySelectorAll(':scope > td').forEach(td => {
+      while ((colOccupied[col] || 0) > rowIdx) col++;
+      const rowspan = parseInt(td.getAttribute('rowspan') || '1', 10);
+      colOccupied[col] = rowIdx + rowspan;
+      const link = td.querySelector('a[href*="perusnaytto_kissa.aspx"]');
+      if (link) {
+        const match = link.href.match(/[?&]id=(\d+)/);
+        if (match) cellData.push({ catId: match[1], rowStart: rowIdx, rowEnd: rowIdx + rowspan, td });
+      }
+      col++;
+    });
+  });
+
+  // Step B — find duplicates
+  const occurrences = new Map();
+  cellData.forEach(cell => {
+    if (!occurrences.has(cell.catId)) occurrences.set(cell.catId, []);
+    occurrences.get(cell.catId).push(cell);
+  });
+  const dupEntries = [...occurrences.entries()].filter(([, cells]) => cells.length > 1);
+  if (dupEntries.length === 0) return { cellData, colorMap: new Map() };
+
+  // Step C — suppress cats whose every occurrence falls within the row range of
+  // some occurrence of a different (shallower) duplicate ancestor
+  function allCoveredBy(eCells, dCells) {
+    return eCells.every(eCell =>
+      dCells.some(dCell => dCell.rowStart <= eCell.rowStart && eCell.rowEnd <= dCell.rowEnd)
+    );
+  }
+
+  const suppressed = new Set();
+  dupEntries.forEach(([eId, eCells]) => {
+    const covered = dupEntries.some(([dId, dCells]) => dId !== eId && allCoveredBy(eCells, dCells));
+    if (covered) suppressed.add(eId);
+  });
+
+  // Step D — assign colours to non-suppressed duplicates
+  const colorMap = new Map();
+  dupEntries
+    .filter(([id]) => !suppressed.has(id))
+    .forEach(([id], i) => colorMap.set(id, DUPE_COLORS[i % DUPE_COLORS.length]));
+
+  return { cellData, colorMap };
+}
+
+function applyPedigreeColors(colorMap, cellData) {
+  cellData.forEach(cell => { cell.td.style.backgroundColor = colorMap.get(cell.catId) || ''; });
+}
+
+function addPedigreeToggle(table, colorMap, cellData) {
+  const container = document.createElement('div');
+  container.style.marginBottom = '8px';
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.id = 'pedigreeHighlightToggle';
+  checkbox.checked = true;
+
+  const label = document.createElement('label');
+  label.htmlFor = 'pedigreeHighlightToggle';
+  label.textContent = ' Highlight duplicate ancestors';
+  label.style.cursor = 'pointer';
+
+  checkbox.addEventListener('change', function () {
+    if (this.checked) {
+      applyPedigreeColors(colorMap, cellData);
+    } else {
+      cellData.forEach(cell => { cell.td.style.backgroundColor = ''; });
     }
   });
 
-  console.log(`Pedigree: highlighted ${colorMap.size} duplicate ancestor(s)`);
+  container.appendChild(checkbox);
+  container.appendChild(label);
+  table.parentElement.insertBefore(container, table);
 }

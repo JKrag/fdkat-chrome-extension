@@ -10,7 +10,8 @@
 
 ### Added
 
-- Duplicate ancestor highlighting in the pedigree tab: each ancestor that appears more than once gets a distinct background colour
+- Pedigree duplicate ancestor highlighting: root-cause duplicates get a distinct pastel background colour; ancestors whose duplication is fully explained by a closer ancestor are suppressed
+- Toggle above the pedigree table to show/hide highlighting
 
 ## [1.0.0] - 2026-05-24
 
