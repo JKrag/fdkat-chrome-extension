@@ -1,3 +1,6 @@
+# Claude local files
+.claude/settings.local.json
+
 # Dependencies
 node_modules/
 
@@ -24,3 +27,5 @@ Thumbs.db
 # Debug files
 *.log
 Screenshot-*.png
+.playwright-mcp/*.yml
+.playwright-mcp/*.png
