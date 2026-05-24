@@ -23,7 +23,7 @@ mkdir -p "$DIST_DIR"
 # Copy extension files (excluding development files)
 echo "Copying extension files..."
 cp "$PROJECT_DIR/manifest.json" "$BUILD_DIR/"
-cp "$PROJECT_DIR/sorter.js" "$BUILD_DIR/"
+cp "$PROJECT_DIR/content.js" "$BUILD_DIR/"
 cp -r "$PROJECT_DIR/lib" "$BUILD_DIR/"
 cp -r "$PROJECT_DIR/images" "$BUILD_DIR/"
 
