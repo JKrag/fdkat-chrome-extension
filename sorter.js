@@ -56,6 +56,9 @@ window.addEventListener('load', function () {
     // Add column filters to the table
     addColumnFilters(table, headers);
 
+    // Add a summary line above the table mirroring the one at the bottom
+    addTopSummary(table);
+
     headers.forEach((header, index) => {
       header.style.textDecoration = 'underline';
 
@@ -794,6 +797,7 @@ function applyGrouping(sortByKey = false) {
 
   if (currentGrouping === 'none') {
     updateGroupCount(summaryRow, null);
+    syncTopSummary();
     return;
   }
 
@@ -836,6 +840,33 @@ function applyGrouping(sortByKey = false) {
   }
 
   updateGroupCount(summaryRow, groups.length);
+  syncTopSummary();
+}
+
+function addTopSummary(table) {
+  const tfoot = table.querySelector('tfoot');
+  const countCell = tfoot ? tfoot.querySelector('td[colspan]') : null;
+  const span = countCell ? countCell.querySelector('span') : null;
+  if (!span) return;
+
+  const div = document.createElement('div');
+  div.id = 'fdkat-top-summary';
+  div.style.textAlign = 'right';
+  div.style.fontSize = '13px';
+  div.style.color = '#555';
+  div.style.padding = '0 0 6px 0';
+  div.textContent = span.textContent;
+
+  table.parentNode.insertBefore(div, table);
+}
+
+function syncTopSummary() {
+  const div = document.getElementById('fdkat-top-summary');
+  if (!div) return;
+  const table = document.querySelector('table.table.table-condensed.table-hover');
+  const tfoot = table ? table.querySelector('tfoot') : null;
+  const countCell = tfoot ? tfoot.querySelector('td[colspan]') : null;
+  if (countCell) div.textContent = countCell.textContent.trim();
 }
 
 function buildGroupHeaderRow(key, count) {
