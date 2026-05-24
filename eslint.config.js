@@ -22,8 +22,8 @@ module.exports = [
     }
   },
   {
-    // sorter.js uses globals from lib files
-    files: ['sorter.js'],
+    // content.js uses globals from lib files
+    files: ['content.js'],
     languageOptions: {
       globals: {
         MALE_TERMS: 'readonly',
@@ -31,7 +31,8 @@ module.exports = [
         isMale: 'readonly',
         isFemale: 'readonly',
         parseDate: 'readonly',
-        extractYear: 'readonly'
+        extractYear: 'readonly',
+        computePedigreeColors: 'readonly'
       }
     }
   },
