@@ -39,3 +39,7 @@ Features activate automatically on `perusnaytto_kissa.aspx` pages.
 ### Pedigree duplicate highlighting
 
 Root-cause duplicate ancestors are highlighted with a distinct pastel background colour each, making inbreeding patterns immediately visible. "Trivial" duplicates — ancestors whose every occurrence is already explained by a closer duplicate — are suppressed to reduce noise. A toggle above the pedigree table lets you hide the highlighting for a cleaner view.
+
+### Wide pedigree view
+
+A "Wide pedigree view" checkbox above the pedigree table hides the right sidebar and expands the main column to full page width, while also compacting cell padding. This reduces vertical scrolling for deep pedigrees (5–8 generations), which can otherwise stretch to many screen heights.

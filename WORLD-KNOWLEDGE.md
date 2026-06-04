@@ -53,6 +53,17 @@ Bootstrap tabs (`data-toggle="tab"`) with these IDs and href anchors:
 
 All tab panels are present in the DOM on page load; tabs show/hide via Bootstrap JS.
 
+### Page layout (cat details)
+
+Two Bootstrap columns (unique on page, no IDs):
+
+| Selector | Width (lg) | Notes |
+|----------|-----------|-------|
+| `div.col-lg-10` | ~975px | Main content: cat info, tabs, pedigree |
+| `div.col-lg-2` | ~195px | Sidebar: Felis Danica ad/logo; also carries `hidden-xs hidden-sm hidden-md` |
+
+The columns sit inside `div.row` inside `div.container`. Bootstrap sets `.container { width: 1170px }` (not `max-width`) on large viewports — overriding it requires setting an inline `width` (e.g. `97%`), not `max-width`, on the container element.
+
 ### Pedigree table (`#tabSukupuu`)
 
 Selector: `table.sukupuu`
@@ -65,6 +76,26 @@ Structure: nested `<td rowspan="N">` cells, one per ancestor. Each cell contains
 - Kennel prefix: `<span id="..._lblKasvattajanimiPrefix">`
 - EMS code: `<span id="..._lblEMSKoodi">`
 - Birth date: `<span id="..._lblSyntymaaika">`
+
+The table has `width: auto` (computed ~756px for a 4-gen pedigree in the default layout); `td` has `padding: 0px`.
+
+Each `td` contains one outer `div` (`padding: 5px; height: 99%`) with three direct child `div`s:
+
+```
+td
+└── div [padding:5px; height:99%]          ← td > div
+    ├── div [margin-bottom:3%]              ← empty spacer (prefix area, often blank)
+    │   └── div (empty)
+    ├── div [margin-bottom:3%]              ← main content
+    │   ├── div → span#lblTittelit         (e.g. "EC")
+    │   ├── div → a (name link) + span#lblLopputittelit  (trailing title e.g. "DM")
+    │   ├── div → span#lblRekisterinumero  (reg numbers, can be long)
+    │   └── div → span#lblEMSKoodi        (right-aligned)
+    └── div                                 ← birth date
+        └── span#lblSyntymaaika
+```
+
+Result: minimum 5 display lines per cell even with no text wrapping.
 
 Number of generations selectable (1–8) via `__doPostBack` links — triggers a page reload with new content.
 

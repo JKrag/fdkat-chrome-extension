@@ -1032,11 +1032,12 @@ function initCatDetailsPage() {
   const pedigreeTable = document.querySelector('table.sukupuu');
   if (!pedigreeTable) return;
 
+  addWideViewToggle(pedigreeTable);
+
   const { cellData, colorMap } = buildPedigreeColorMap(pedigreeTable);
   if (colorMap.size === 0) return;
 
   addPedigreeToggle(pedigreeTable, colorMap, cellData);
-  applyPedigreeColors(colorMap, cellData);
   console.log(`Pedigree: ${colorMap.size} root-cause duplicate(s) highlighted`);
 }
 
@@ -1069,6 +1070,55 @@ function applyPedigreeColors(colorMap, cellData) {
   cellData.forEach(cell => { cell.td.style.backgroundColor = colorMap.get(cell.catId) || ''; });
 }
 
+function addWideViewToggle(table) {
+  const sidebar = document.querySelector('.col-lg-2');
+  const mainCol = document.querySelector('.col-lg-10');
+  if (!sidebar || !mainCol) return;
+
+  const bootstrapContainer = sidebar.closest('.container');
+
+  function applyWideView(wide) {
+    if (bootstrapContainer) bootstrapContainer.style.width = wide ? '97%' : '';
+    sidebar.style.display = wide ? 'none' : '';
+    mainCol.style.width = wide ? '100%' : '';
+    mainCol.style.maxWidth = wide ? '100%' : '';
+    table.style.width = wide ? '100%' : '';
+    document.querySelectorAll('table.sukupuu td > div').forEach(div => {
+      div.style.padding = wide ? '2px' : '';
+    });
+    document.querySelectorAll('table.sukupuu td > div > div').forEach(div => {
+      div.style.marginBottom = wide ? '0' : '';
+    });
+  }
+
+  const container = document.createElement('div');
+  container.style.marginBottom = '4px';
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.id = 'pedigreeWideToggle';
+
+  const label = document.createElement('label');
+  label.htmlFor = 'pedigreeWideToggle';
+  label.textContent = ' Wide pedigree view';
+  label.style.cursor = 'pointer';
+
+  checkbox.addEventListener('change', function () {
+    localStorage.setItem('fdkat_wideView', this.checked);
+    applyWideView(this.checked);
+  });
+
+  const saved = localStorage.getItem('fdkat_wideView') === 'true';
+  if (saved) {
+    checkbox.checked = true;
+    applyWideView(true);
+  }
+
+  container.appendChild(checkbox);
+  container.appendChild(label);
+  table.parentElement.insertBefore(container, table);
+}
+
 function addPedigreeToggle(table, colorMap, cellData) {
   const container = document.createElement('div');
   container.style.marginBottom = '8px';
@@ -1076,7 +1126,6 @@ function addPedigreeToggle(table, colorMap, cellData) {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.id = 'pedigreeHighlightToggle';
-  checkbox.checked = true;
 
   const label = document.createElement('label');
   label.htmlFor = 'pedigreeHighlightToggle';
@@ -1084,12 +1133,20 @@ function addPedigreeToggle(table, colorMap, cellData) {
   label.style.cursor = 'pointer';
 
   checkbox.addEventListener('change', function () {
+    localStorage.setItem('fdkat_highlightDupes', this.checked);
     if (this.checked) {
       applyPedigreeColors(colorMap, cellData);
     } else {
       cellData.forEach(cell => { cell.td.style.backgroundColor = ''; });
     }
   });
+
+  // Default is on; only off if user has explicitly turned it off
+  const saved = localStorage.getItem('fdkat_highlightDupes');
+  checkbox.checked = saved !== 'false';
+  if (checkbox.checked) {
+    applyPedigreeColors(colorMap, cellData);
+  }
 
   container.appendChild(checkbox);
   container.appendChild(label);
