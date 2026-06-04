@@ -8,8 +8,8 @@ describe('allCoveredBy()', () => {
     expect(allCoveredBy([cell('E', 2, 4)], [cell('D', 0, 8)])).toBe(true);
   });
 
-  test('eCell exactly matching dCell bounds', () => {
-    expect(allCoveredBy([cell('E', 0, 4)], [cell('D', 0, 4)])).toBe(true);
+  test('eCell exactly matching dCell bounds is not covered (equal span is not strictly shallower)', () => {
+    expect(allCoveredBy([cell('E', 0, 4)], [cell('D', 0, 4)])).toBe(false);
   });
 
   test('eCell starting before dCell', () => {
@@ -73,6 +73,19 @@ describe('computePedigreeColors()', () => {
     const colorMap = computePedigreeColors(cellData);
     expect(colorMap.has('A')).toBe(true);
     expect(colorMap.has('C')).toBe(false);
+  });
+
+  test('two duplicates with mutually-covering spans both remain highlighted', () => {
+    // A appears at [0,8] and [2,4]; B appears at [0,8] and [0,4].
+    // Every A cell falls within some B cell and vice versa, but neither is strictly shallower —
+    // so neither should suppress the other.
+    const cellData = [
+      cell('A', 0, 8), cell('A', 2, 4),
+      cell('B', 0, 8), cell('B', 0, 4),
+    ];
+    const colorMap = computePedigreeColors(cellData);
+    expect(colorMap.has('A')).toBe(true);
+    expect(colorMap.has('B')).toBe(true);
   });
 
   test('does not suppress ancestor with an independent occurrence outside any shallower duplicate', () => {
