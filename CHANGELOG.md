@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1] - 2026-06-05
+
+### Fixed
+
+- Pedigree duplicate highlighting: two same-depth duplicates could mutually suppress each other, leaving neither highlighted. Suppression now only applies when the covering ancestor is strictly shallower (larger row span).
+
 ## [1.2.0] - 2026-06-04
 
 ### Added
