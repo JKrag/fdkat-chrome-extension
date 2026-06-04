@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] - 2026-06-04
+
+### Added
+
+- Wide pedigree view toggle on the Stamtavle tab: hides the right sidebar, expands the pedigree table to full window width, and compacts cell padding and spacer margins — significantly reducing vertical scrolling on deep (5–8 generation) pedigrees
+- Both pedigree toggles (wide view and duplicate highlighting) now remember their state across generation changes and cat-to-cat navigation via localStorage
+
 ## [1.1.0] - 2026-05-24
 
 ### Fixed
