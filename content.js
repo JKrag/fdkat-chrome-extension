@@ -43,7 +43,8 @@ let currentGrouping = 'none';
 function init() {
   console.log('Page reloaded');
 
-  if (window.location.pathname.includes('perusnaytto_kissa')) {
+  if (window.location.pathname.includes('perusnaytto_kissa') ||
+      window.location.pathname.includes('test_mate')) {
     initCatDetailsPage();
     return;
   }

@@ -104,4 +104,54 @@ and ALC (`#cphContent_sukupuu_lblSukukatokerroin`).
 
 ## Logged-In Pages
 
-_Not yet explored. To be documented as features are developed._
+All logged-in pages live under the `/FDKat/` path prefix (fdkat.dk only; other sites not yet
+investigated). The subsystem uses **Bootstrap 4** (not Bootstrap 3 as on the public side), so
+tab, grid, and table class names may differ from the public pages.
+
+### Known URL patterns (fdkat.dk)
+
+| Page | URL pattern | Notes |
+|------|-------------|-------|
+| User profile / cat list | `/FDKat/perusnaytto_henkilo.aspx?id=<uid>&returnTab=<tab>` | Tabs: profile, membership, cat list |
+| Logged-in cat details | `/FDKat/perusnaytto_kissa.aspx?id=<catid>` | Has pedigree tab; DOM differs from public version |
+| Test mating | `/FDKat/test_mate.aspx?id=<catid>&returnTab=<encoded-url>` | Displays pedigree of projected kittens |
+
+Example URLs:
+
+- `https://fdkat.dk/FDKat/perusnaytto_henkilo.aspx?id=32342&returnTab=TabPerustiedot`
+- `https://fdkat.dk/FDKat/perusnaytto_kissa.aspx?id=243262`
+- `https://fdkat.dk/FDKat/test_mate.aspx?id=243262&returnTab=perusnaytto_kissa.aspx%3fid%3d243262&returnTab=TabSukupuu`
+
+### DOM structure — `test_mate.aspx` (inspected)
+
+The test-mating pedigree uses **the same `table.sukupuu` structure** as the public pedigree:
+
+- Selector: `table.sukupuu` — present, exactly one per page
+- Rows live inside `<tbody>` — `table.querySelectorAll('tbody tr')` returns 16 rows (4-gen)
+- The table shows **two parent pedigrees side by side**: 30 total cells (15 + 15)
+- All cells have valid cat ID links — no hypothetical/unregistered kitten cells at the root
+- Cat ID links: `<a href="/FDKat/perusnaytto_kissa.aspx?id=XXXXX">` — the same
+  `a[href*="perusnaytto_kissa.aspx"]` selector and `[?&]id=(\d+)` regex both match
+- Span IDs: same as public page (`lblTittelit`, `lblLopputittelit`, `lblRekisterinumero`,
+  `lblEMSKoodi`, `lblSyntymaaika`), plus `lblOtsikko` and `lblDNA` in the first cell
+- Inbreeding coefficient and ALC labels: present (`[id*="Sukusiitos"]`, `[id*="Sukukato"]`)
+
+The pedigree table sits directly in `div#content > div > div` — **no Bootstrap tab wrapping**.
+The page uses Bootstrap 4.3.1 (not Bootstrap 3), so `.col-lg-2` / `.col-lg-10` do not exist;
+`addWideViewToggle` gracefully skips (returns early) when those selectors are absent.
+
+### DOM structure — `/FDKat/perusnaytto_kissa.aspx` (inspected)
+
+The logged-in cat details page uses **ASP.NET AJAX TabContainer** (not Bootstrap tabs). The
+tab system uses `ajax__tab_panel` / `ajax__tab_container` classes. All tab content is present
+in the DOM at page load (not loaded lazily via AJAX).
+
+- Pedigree table: `table.sukupuu` — same selector, same structure as public and test_mate pages
+- Pedigree tab panel: `div.ajax__tab_panel#cphContent_TabContainer_TabSukupuu`
+- Cat ID links in cells: `<a href="/FDKat/perusnaytto_kissa.aspx?id=XXXXX">` — matches
+  `a[href*="perusnaytto_kissa.aspx"]` selector and `[?&]id=(\d+)` regex
+- 30 cells (4-gen, 16 `<tbody>` rows) — same as test_mate layout
+- No `.col-lg-2` / `.col-lg-10` — `addWideViewToggle` gracefully skips
+
+**Result**: `initCatDetailsPage()` works unchanged on this page. A cat with no duplicate
+ancestors correctly produces no toggle and no console log (returns early at `colorMap.size === 0`).

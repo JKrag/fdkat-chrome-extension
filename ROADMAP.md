@@ -9,6 +9,7 @@
 - Fix bug: search result tooling (filters, group-by, count) incorrectly appearing on cat details page tabs
 - Color-code duplicate ancestors in the pedigree tab on cat details pages
 - Wide pedigree view toggle (hides sidebar, compacts cell padding) to reduce scrolling on deep pedigrees
+- Color-coded duplicate ancestors on the test-mating pedigree view and logged-in cat details page (`/FDKat/perusnaytto_kissa.aspx`)
 
 ## In Progress
 
@@ -31,7 +32,6 @@ See [WORLD-KNOWLEDGE.md](WORLD-KNOWLEDGE.md) for tab/DOM structure.
 
 ### Logged-in page features
 
-- Color-coded duplicate cats on the test-mating pedigree view
 - Sort/filter tables on individual cat pages (show results, kittens, etc.)
 
 ### Search page enhancements

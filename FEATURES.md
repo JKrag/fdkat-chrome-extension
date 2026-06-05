@@ -43,3 +43,13 @@ Root-cause duplicate ancestors are highlighted with a distinct pastel background
 ### Wide pedigree view
 
 A "Wide pedigree view" checkbox above the pedigree table hides the right sidebar and expands the main column to full page width, while also compacting cell padding. This reduces vertical scrolling for deep pedigrees (5–8 generations), which can otherwise stretch to many screen heights.
+
+## Test-Mating Page (logged in)
+
+Features activate automatically on `FDKat/test_mate.aspx` pages.
+
+### Pedigree duplicate highlighting
+
+Same duplicate ancestor highlighting as on the public cat details page — root-cause duplicates
+get a distinct pastel background colour, with trivial duplicates suppressed. Toggle above the
+table to show/hide highlighting.

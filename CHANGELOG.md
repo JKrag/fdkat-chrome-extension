@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0] - 2026-06-05
+
+### Added
+
+- Pedigree duplicate highlighting now also activates on the test-mating page
+  (`FDKat/test_mate.aspx`); the pedigree table structure is identical to the public page so
+  the same coloring logic applies with no changes
+
 ## [1.2.1] - 2026-06-05
 
 ### Fixed

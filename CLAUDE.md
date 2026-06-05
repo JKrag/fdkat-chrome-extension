@@ -72,20 +72,36 @@ When you make changes, update the relevant files before committing:
 
 Remember to consult these documents as needed before starting work on new features, to ensure your changes align with the overall project direction and to avoid duplicating efforts.
 
-## Working on logged-in pages
+## Working on live sites
 
 All site data is real production — there are no test accounts or throwaway cat entries.
 
 ### Inspecting page structure
 
 1. User navigates to the target page in Chrome
-2. Read the current tab's DOM with Claude-in-Chrome MCP (`get_page_text` / `read_page`)
+2. Read the current tab's DOM with Claude-in-Chrome MCP (`get_page_text` / `read_page` / `javascript_tool`)
 3. Document discovered selectors and structure in `WORLD-KNOWLEDGE.md`
 4. Implement locally; user reloads the unpacked extension at `chrome://extensions/` and tests manually
 
-### Safety rules — non-negotiable
+### Safety rules — tiered by page type
 
-- **Never click anything on the live sites** via browser automation. Read-only tools only: `get_page_text`, `read_page`, `read_console_messages`.
-- **Never navigate** to fdkat.dk / kissat.kissaliitto.fi / katt.nrr.no using browser tools. User controls all navigation.
-- **Never submit any form** on the live sites.
-- If a destructive element is visible (containing: delete, slet, fjern, remove, afmeld, or similar) — flag it explicitly and do nothing.
+The key distinction is whether the URL contains `/FDKat/` in the path.
+
+#### Public pages (no `/FDKat/` in path)
+
+Includes: search results (`kissat.aspx`), public cat details (`perusnaytto_kissa.aspx` without
+`/FDKat/`), and the smart redirect (`/Pedigree?id=...`).
+
+- All Claude-in-Chrome tools are allowed: `navigate`, `read_page`, `get_page_text`, `find`,
+  `javascript_tool`, `read_console_messages`
+- Clicking read-only UI is fine: tabs, generation selectors, toggles added by this extension
+- Never submit any form or click anything that could write data
+
+#### Logged-in pages (`/FDKat/` anywhere in the URL path) — non-negotiable
+
+- **Read-only tools only**: `get_page_text`, `read_page`, `read_console_messages`, and `javascript_tool` for pure DOM inspection (no mutations — no `setAttribute`, `style`, `innerHTML =`, `click()`, `submit()`, etc.)
+- **Never navigate** to a logged-in page using browser tools. User controls all navigation.
+- **Never click anything** on logged-in pages via browser automation.
+- **Never submit any form** on logged-in pages.
+- If a destructive element is visible (containing: delete, slet, fjern, remove, afmeld, or
+  similar) — flag it explicitly and do nothing.
