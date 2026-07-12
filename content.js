@@ -55,22 +55,16 @@ function init() {
     console.log('Table found');
     const headers = table.querySelectorAll('th');
 
-    // Add color toggle control above the table
-    addColorToggle(table);
-    
-    // Add column filters to the table
-    addColumnFilters(table, headers);
-
-    // Add a summary line above the table mirroring the one at the bottom
-    addTopSummary(table);
+    // Build the unified add-on toolbar (controls + filters + summary) above the table
+    buildSearchToolbar(table, headers);
 
     headers.forEach((header, index) => {
-      header.style.textDecoration = 'underline';
+      header.classList.add('kdb-th');
 
       header.addEventListener('click', function () {
-        headers.forEach((header) => header.style.backgroundColor = '');
+        headers.forEach((h) => h.classList.remove('kdb-th--sorted'));
         // Highlight the clicked header
-        header.style.backgroundColor = 'lightblue';
+        header.classList.add('kdb-th--sorted');
         if (lastSortedColumn === index) {
           ascending = !ascending;
         } else {
@@ -96,67 +90,63 @@ if (document.readyState === 'complete') {
   window.addEventListener('load', init);
 }
 
-// Function to add the color toggle control
-function addColorToggle(table) {
-  // Create a container for the controls
-  const controlsContainer = document.createElement('div');
-  controlsContainer.style.marginBottom = '10px';
-  controlsContainer.style.display = 'flex';
-  controlsContainer.style.justifyContent = 'space-between';
-  
-  // Create a div for the clear filters button (left side)
-  const clearFiltersDiv = document.createElement('div');
-  
-  // Create the clear filters button
-  const clearFiltersButton = document.createElement('button');
-  clearFiltersButton.type = 'button'; // Prevent form submission
-  clearFiltersButton.textContent = 'Clear All Filters';
-  clearFiltersButton.style.padding = '4px 8px';
-  clearFiltersButton.style.border = '1px solid #ccc';
-  clearFiltersButton.style.borderRadius = '3px';
-  clearFiltersButton.style.backgroundColor = '#f0f0f0';
-  clearFiltersButton.style.cursor = 'pointer';
-  
-  // Add event listener for clear filters button
-  clearFiltersButton.addEventListener('click', function() {
-    clearAllFilters();
-  });
-  
-  // Add button to container
-  clearFiltersDiv.appendChild(clearFiltersButton);
-  
-  // Create a div for the color toggle (right side)
-  const toggleDiv = document.createElement('div');
-  toggleDiv.style.textAlign = 'right';
-  
-  // Create the checkbox
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.id = 'colorToggle';
-  checkbox.checked = colorCodingEnabled;
-  
-  // Create the label
+// Build the unified add-on toolbar: controls row + filter row + summary/caption foot.
+function buildSearchToolbar(table, headers) {
+  const toolbar = document.createElement('div');
+  toolbar.className = 'kdb-toolbar';
+
+  toolbar.appendChild(buildControlsRow());
+  toolbar.appendChild(buildFilterRow(headers));
+  toolbar.appendChild(buildToolbarFoot(table));
+
+  table.parentNode.insertBefore(toolbar, table);
+}
+
+// Shared checkbox+label toggle. onChange receives (checked, inputElement).
+function makeToggle(id, labelText, onChange) {
   const label = document.createElement('label');
-  label.htmlFor = 'colorToggle';
-  label.textContent = 'Color code by gender';
-  label.style.marginLeft = '5px';
+  label.htmlFor = id;
+  label.style.display = 'inline-flex';
+  label.style.alignItems = 'center';
+  label.style.gap = '5px';
+  label.style.cursor = 'pointer';
   label.style.fontWeight = 'normal';
-  
-  // Add event listener to toggle color coding
-  checkbox.addEventListener('change', function() {
-    colorCodingEnabled = this.checked;
-    if (colorCodingEnabled) {
-      colorCodeCatsByGender();
-    } else {
-      removeColorCoding();
-    }
-  });
-  
-  // Assemble the toggle control
-  toggleDiv.appendChild(checkbox);
-  toggleDiv.appendChild(label);
-  
-  // Create a "Group by" dropdown (center)
+  label.style.marginBottom = '0';
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.id = id;
+  input.addEventListener('change', function () { onChange(this.checked, this); });
+
+  label.appendChild(input);
+  label.appendChild(document.createTextNode(' ' + labelText));
+  return { label, input };
+}
+
+// The discreet add-on signature. The tooltip clarifies the whole page is enhanced,
+// not only the toolbar box it sits in.
+function buildCaption() {
+  const cap = document.createElement('span');
+  cap.className = 'kdb-caption';
+  cap.textContent = '✦ enhanced by KissatDB add-ons';
+  cap.title = 'Sorting, filtering, grouping and colour cues on this page are added by the ' +
+    'KissatDB add-ons browser extension.';
+  return cap;
+}
+
+// Top row: clear-filters button (left), group-by dropdown (centre), colour toggle (right).
+function buildControlsRow() {
+  const row = document.createElement('div');
+  row.className = 'kdb-toolbar__row';
+
+  // Clear filters (left)
+  const clearButton = document.createElement('button');
+  clearButton.type = 'button'; // Prevent form submission
+  clearButton.className = 'kdb-btn';
+  clearButton.textContent = 'Clear all filters';
+  clearButton.addEventListener('click', clearAllFilters);
+
+  // Group by (centre)
   const groupByDiv = document.createElement('div');
   groupByDiv.style.display = 'flex';
   groupByDiv.style.alignItems = 'center';
@@ -164,17 +154,13 @@ function addColorToggle(table) {
 
   const groupByLabel = document.createElement('label');
   groupByLabel.textContent = 'Group by:';
-  groupByLabel.style.fontSize = '12px';
+  groupByLabel.htmlFor = 'groupBySelect';
   groupByLabel.style.fontWeight = 'normal';
+  groupByLabel.style.marginBottom = '0';
 
   const groupBySelect = document.createElement('select');
   groupBySelect.id = 'groupBySelect';
-  groupBySelect.style.padding = '3px 5px';
-  groupBySelect.style.border = '1px solid #ccc';
-  groupBySelect.style.borderRadius = '3px';
-  groupBySelect.style.backgroundColor = '#f0f0f0';
-  groupBySelect.style.fontSize = '12px';
-  groupBySelect.style.cursor = 'pointer';
+  groupBySelect.className = 'kdb-select';
 
   GROUP_DEFINITIONS.forEach(def => {
     const opt = document.createElement('option');
@@ -183,7 +169,7 @@ function addColorToggle(table) {
     groupBySelect.appendChild(opt);
   });
 
-  groupBySelect.addEventListener('change', function() {
+  groupBySelect.addEventListener('change', function () {
     currentGrouping = this.value;
     applyGrouping(true); // sort rows by group key when switching grouping
   });
@@ -191,217 +177,131 @@ function addColorToggle(table) {
   groupByDiv.appendChild(groupByLabel);
   groupByDiv.appendChild(groupBySelect);
 
-  // Add both controls to the container
-  controlsContainer.appendChild(clearFiltersDiv);
-  controlsContainer.appendChild(groupByDiv);
-  controlsContainer.appendChild(toggleDiv);
-  
-  // Insert the controls before the table
-  table.parentNode.insertBefore(controlsContainer, table);
+  // Colour toggle (right)
+  const { label: colorLabel, input: colorInput } = makeToggle(
+    'colorToggle', 'Color code by gender',
+    (checked) => {
+      colorCodingEnabled = checked;
+      if (colorCodingEnabled) { colorCodeCatsByGender(); } else { removeColorCoding(); }
+    }
+  );
+  colorInput.checked = colorCodingEnabled;
+
+  row.appendChild(clearButton);
+  row.appendChild(groupByDiv);
+  row.appendChild(colorLabel);
+  return row;
 }
 
-// Function to add column-specific filters
-function addColumnFilters(table, headers) {
-  // Create a container for all filter inputs
+// Middle row: one filter control per column. Returns the row element (caller appends it).
+function buildFilterRow(headers) {
   const filterRow = document.createElement('div');
-  filterRow.style.display = 'flex';
-  filterRow.style.marginBottom = '15px';
-  filterRow.style.marginTop = '10px';
-  filterRow.style.alignItems = 'flex-end';
-  
-  // Get column widths to match filters to columns
-  const columnWidths = Array.from(headers).map(header => {
-    return Math.max(100, header.offsetWidth - 10) + 'px'; // Minimum width 100px
-  });
-  
-  // Create filter inputs for each column
+  filterRow.className = 'kdb-filter-row';
+
   headers.forEach((header, index) => {
-    const filterContainer = document.createElement('div');
-    filterContainer.style.flex = '1';
-    filterContainer.style.padding = '0 5px';
-    filterContainer.style.maxWidth = columnWidths[index];
-    
-    // Get header text for label
+    const field = document.createElement('div');
+    field.className = 'kdb-field';
+
+    // Header text for the field label (strip any sort arrow)
     const headerText = header.textContent.trim().replace(/[▲▼]/, '');
-    
-    // Create label
+
     const label = document.createElement('div');
-    label.textContent = 'Filter: ' + headerText;
-    label.style.fontSize = '12px';
-    label.style.marginBottom = '3px';
-    
-    // Create filter based on column type
-    let filterInput;
-    
-    // Column 4 is gender - create toggle buttons instead of dropdown
+    label.className = 'kdb-field__label';
+    label.textContent = headerText;
+
+    // Column 4 is gender - toggle buttons instead of a text field
     if (index === 4) {
-      filterInput = document.createElement('div');
-      filterInput.style.display = 'flex';
-      filterInput.style.gap = '5px';
-      
-      // Male toggle button
+      const genderGroup = document.createElement('div');
+      genderGroup.className = 'kdb-gender-group';
+
       const maleButton = document.createElement('button');
       maleButton.textContent = '♂';
       maleButton.title = 'Show/hide males';
-      maleButton.type = 'button'; // Prevent form submission
-      maleButton.style.flex = '1';
-      maleButton.style.backgroundColor = '#d4e6ff'; // Light blue
-      maleButton.style.border = '1px solid #9ab8e6';
-      maleButton.style.borderRadius = '3px';
-      maleButton.style.padding = '3px 5px';
-      maleButton.style.cursor = 'pointer';
+      maleButton.type = 'button';
+      maleButton.className = 'kdb-btn kdb-btn--male';
       maleButton.dataset.active = 'true'; // Active by default
-      
-      // Female toggle button
+
       const femaleButton = document.createElement('button');
       femaleButton.textContent = '♀';
       femaleButton.title = 'Show/hide females';
-      femaleButton.type = 'button'; // Prevent form submission
-      femaleButton.style.flex = '1';
-      femaleButton.style.backgroundColor = '#ffd4e6'; // Light pink
-      femaleButton.style.border = '1px solid #e6b1c9';
-      femaleButton.style.borderRadius = '3px';
-      femaleButton.style.padding = '3px 5px';
-      femaleButton.style.cursor = 'pointer';
+      femaleButton.type = 'button';
+      femaleButton.className = 'kdb-btn kdb-btn--female';
       femaleButton.dataset.active = 'true'; // Active by default
-      
-      // Function to update button appearance based on state
+
+      // Dim the button when its gender is toggled off
       const updateButtonState = (button) => {
-        const isActive = button.dataset.active === 'true';
-        button.style.opacity = isActive ? '1' : '0.5';
-        button.style.fontWeight = isActive ? 'bold' : 'normal';
+        button.classList.toggle('kdb-btn--off', button.dataset.active !== 'true');
       };
-      
-      // Initialize button states
-      updateButtonState(maleButton);
-      updateButtonState(femaleButton);
-      
-      // Add event listeners for toggle buttons
-      maleButton.addEventListener('click', function() {
-        // Toggle active state
+
+      const onGenderClick = function () {
         this.dataset.active = this.dataset.active === 'true' ? 'false' : 'true';
         updateButtonState(this);
-        
-        // Update filter
         updateGenderFilter(maleButton.dataset.active === 'true', femaleButton.dataset.active === 'true', index);
-      });
-      
-      femaleButton.addEventListener('click', function() {
-        // Toggle active state
-        this.dataset.active = this.dataset.active === 'true' ? 'false' : 'true';
-        updateButtonState(this);
-        
-        // Update filter
-        updateGenderFilter(maleButton.dataset.active === 'true', femaleButton.dataset.active === 'true', index);
-      });
-      
-      // Add buttons to container
-      filterInput.appendChild(maleButton);
-      filterInput.appendChild(femaleButton);
-    } 
-    // Column 3 is date - add special date filter
-    else if (index === 3) {
-      // Create a container for date range
-      filterInput = document.createElement('div');
-      filterInput.style.display = 'flex';
-      filterInput.style.flexDirection = 'column';
-      filterInput.style.gap = '3px';
-      
-      // Year input with clear button
-      const yearRow = document.createElement('div');
-      yearRow.style.display = 'flex';
-      yearRow.style.gap = '3px';
-      yearRow.style.marginBottom = '3px';
-      
-      // Year input
+      };
+      maleButton.addEventListener('click', onGenderClick);
+      femaleButton.addEventListener('click', onGenderClick);
+
+      genderGroup.appendChild(maleButton);
+      genderGroup.appendChild(femaleButton);
+
+      field.appendChild(label);
+      field.appendChild(genderGroup);
+      filterRow.appendChild(field);
+      return;
+    }
+
+    // Column 3 is date - year input plus =/</> operator buttons
+    if (index === 3) {
+      const dateGroup = document.createElement('div');
+      dateGroup.className = 'kdb-date-group';
+
       const yearInput = document.createElement('input');
       yearInput.type = 'number';
       yearInput.min = '1900';
-      yearInput.max = new Date().getFullYear(); // Current year
+      yearInput.max = new Date().getFullYear();
       yearInput.placeholder = 'Year';
-      yearInput.style.flex = '1';
-      yearInput.style.padding = '3px';
-      yearInput.style.fontSize = '12px';
-      
-      // Add year input to row
-      yearRow.appendChild(yearInput);
-      
-      // Date filter buttons
+      yearInput.className = 'kdb-input';
+
       const buttonsRow = document.createElement('div');
-      buttonsRow.style.display = 'flex';
-      buttonsRow.style.gap = '3px';
-      
-      // Create filter mode buttons
-      const exactButton = document.createElement('button');
-      exactButton.type = 'button';
-      exactButton.textContent = '=';
-      exactButton.title = 'Born in exact year';
-      exactButton.style.flex = '1';
-      exactButton.style.fontSize = '12px';
-      exactButton.style.padding = '2px';
-      exactButton.style.backgroundColor = '#f0f0f0';
-      exactButton.style.border = '1px solid #ccc';
-      exactButton.style.borderRadius = '3px';
-      exactButton.style.cursor = 'pointer';
-      exactButton.dataset.active = 'false';
-      
-      const beforeButton = document.createElement('button');
-      beforeButton.type = 'button';
-      beforeButton.textContent = '<';
-      beforeButton.title = 'Born before year';
-      beforeButton.style.flex = '1';
-      beforeButton.style.fontSize = '12px';
-      beforeButton.style.padding = '2px';
-      beforeButton.style.backgroundColor = '#f0f0f0';
-      beforeButton.style.border = '1px solid #ccc';
-      beforeButton.style.borderRadius = '3px';
-      beforeButton.style.cursor = 'pointer';
-      beforeButton.dataset.active = 'false';
-      
-      const afterButton = document.createElement('button');
-      afterButton.type = 'button';
-      afterButton.textContent = '>';
-      afterButton.title = 'Born after year';
-      afterButton.style.flex = '1';
-      afterButton.style.fontSize = '12px';
-      afterButton.style.padding = '2px';
-      afterButton.style.backgroundColor = '#f0f0f0';
-      afterButton.style.border = '1px solid #ccc';
-      afterButton.style.borderRadius = '3px';
-      afterButton.style.cursor = 'pointer';
-      afterButton.dataset.active = 'false';
-      
-      // Add buttons to row
+      buttonsRow.className = 'kdb-date-buttons';
+
+      const makeOpButton = (symbol, title) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = symbol;
+        btn.title = title;
+        btn.className = 'kdb-btn';
+        btn.dataset.active = 'false';
+        return btn;
+      };
+      const exactButton = makeOpButton('=', 'Born in exact year');
+      const beforeButton = makeOpButton('<', 'Born before year');
+      const afterButton = makeOpButton('>', 'Born after year');
+
       buttonsRow.appendChild(exactButton);
       buttonsRow.appendChild(beforeButton);
       buttonsRow.appendChild(afterButton);
-      
-      // Add rows to filter input
-      filterInput.appendChild(yearRow);
-      filterInput.appendChild(buttonsRow);
-      
-      // Function to update button appearance based on state
+
+      dateGroup.appendChild(yearInput);
+      dateGroup.appendChild(buttonsRow);
+
       const updateButtonState = (button, active) => {
         button.dataset.active = active ? 'true' : 'false';
-        button.style.backgroundColor = active ? '#d0d0ff' : '#f0f0f0';
-        button.style.fontWeight = active ? 'bold' : 'normal';
+        button.classList.toggle('kdb-btn--on', active);
       };
-      
-      // Function to update the date filter
+
       const updateDateFilter = () => {
         const year = yearInput.value.trim();
         const exactActive = exactButton.dataset.active === 'true';
         const beforeActive = beforeButton.dataset.active === 'true';
         const afterActive = afterButton.dataset.active === 'true';
-        
-        // Remove filter if no criteria set
+
         if (!year && !exactActive && !beforeActive && !afterActive) {
           delete activeFilters[index];
           applyFilters();
           return;
         }
-        
-        // Set the filter with appropriate parameters
+
         activeFilters[index] = {
           type: 'year-filter',
           year: year,
@@ -409,93 +309,52 @@ function addColumnFilters(table, headers) {
           before: beforeActive,
           after: afterActive
         };
-        
-        // Apply all filters
         applyFilters();
       };
-      
-      // Event listeners
-      yearInput.addEventListener('input', function() {
-        updateDateFilter();
-      });
-      
-      // Helper function to handle button clicks
+
+      yearInput.addEventListener('input', updateDateFilter);
+
+      // Operator buttons are mutually exclusive
       const handleButtonClick = (clickedButton, otherButtons) => {
         const wasActive = clickedButton.dataset.active === 'true';
-        
-        // Toggle the clicked button
         updateButtonState(clickedButton, !wasActive);
-        
-        // If turning on, turn off others (for mutual exclusivity)
         if (!wasActive) {
           otherButtons.forEach(btn => updateButtonState(btn, false));
         }
-        
         updateDateFilter();
       };
-      
-      exactButton.addEventListener('click', function() {
-        handleButtonClick(this, [beforeButton, afterButton]);
-      });
-      
-      beforeButton.addEventListener('click', function() {
-        handleButtonClick(this, [exactButton, afterButton]);
-      });
-      
-      afterButton.addEventListener('click', function() {
-        handleButtonClick(this, [exactButton, beforeButton]);
-      });
-      
-      // Add these elements to DOM
-      filterContainer.appendChild(label);
-      filterContainer.appendChild(filterInput);
-      filterRow.appendChild(filterContainer);
-      
-      // Skip the rest of the function for the date filter
+
+      exactButton.addEventListener('click', function () { handleButtonClick(this, [beforeButton, afterButton]); });
+      beforeButton.addEventListener('click', function () { handleButtonClick(this, [exactButton, afterButton]); });
+      afterButton.addEventListener('click', function () { handleButtonClick(this, [exactButton, beforeButton]); });
+
+      field.appendChild(label);
+      field.appendChild(dateGroup);
+      filterRow.appendChild(field);
       return;
     }
-    // For all other columns, create a text input
-    else {
-      filterInput = document.createElement('input');
-      filterInput.type = 'text';
-      filterInput.style.width = '100%';
-      filterInput.style.padding = '3px';
-      filterInput.placeholder = 'Type to filter...';
-    }
-    
-    // Add event listener for filtering
-    if (index === 4) { // Gender toggle buttons
-      // Handled by toggle button event listeners
-    } else { // Text input
-      filterInput.addEventListener('input', function() {
-        const value = this.value.trim();
-        
-        if (value === '') {
-          // If empty, remove this filter
-          delete activeFilters[index];
-        } else {
-          // Otherwise, add a text filter
-          activeFilters[index] = {
-            type: 'text',
-            value: value.toLowerCase()
-          };
-        }
-        
-        // Apply all filters
-        applyFilters();
-      });
-    }
-    
-    // Add filter to container
-    filterContainer.appendChild(label);
-    filterContainer.appendChild(filterInput);
-    
-    // Add container to filter row
-    filterRow.appendChild(filterContainer);
+
+    // All other columns: text substring filter
+    const textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.className = 'kdb-input';
+    textInput.placeholder = 'Type to filter...';
+    textInput.addEventListener('input', function () {
+      const value = this.value.trim();
+      if (value === '') {
+        delete activeFilters[index];
+      } else {
+        activeFilters[index] = { type: 'text', value: value.toLowerCase() };
+      }
+      applyFilters();
+    });
+
+    field.appendChild(label);
+    field.appendChild(textInput);
+    filterRow.appendChild(field);
   });
-  
-  // Insert the filter row before the table
-  table.parentNode.insertBefore(filterRow, table);
+
+  return filterRow;
 }
 
 // Function to update gender filter based on button states
@@ -723,25 +582,25 @@ function updateSummaryRowCounts(summaryRow, visibleCount, totalCount) {
 function removeColorCoding() {
   const table = document.querySelector('table.table.table-condensed.table-hover');
   const rows = Array.from(table.querySelectorAll('tbody tr'));
-  
+
   rows.forEach(row => {
-    row.style.backgroundColor = ''; // Remove background color
+    row.classList.remove('kdb-row--male', 'kdb-row--female');
   });
 }
 
 // Function to color code cats by gender
 function colorCodeCatsByGender() {
   console.log('Applying color coding for cats by gender');
-  
+
   // First remove any existing color coding
   removeColorCoding();
-  
+
   // Only apply colors if the feature is enabled
   if (!colorCodingEnabled) return;
-  
+
   const table = document.querySelector('table.table.table-condensed.table-hover');
   const rows = Array.from(table.querySelectorAll('tbody tr'));
-  
+
   // Process all rows and check if the last one is a summary row
   rows.forEach((row, _index) => {
     // Check if this is a data row (has the gender cell with content)
@@ -749,11 +608,11 @@ function colorCodeCatsByGender() {
     if (genderCell && genderCell.innerText.trim()) {
       const genderText = genderCell.innerText.trim();
 
-      // Apply different colors based on gender - uses isMale/isFemale from lib/gender-utils.js
+      // Apply a tint class based on gender - uses isMale/isFemale from lib/gender-utils.js
       if (isMale(genderText)) {
-        row.style.backgroundColor = '#d4e6ff'; // Light blue for males
+        row.classList.add('kdb-row--male');
       } else if (isFemale(genderText)) {
-        row.style.backgroundColor = '#ffd4e6'; // Light pink for females
+        row.classList.add('kdb-row--female');
       }
     }
   });
@@ -771,20 +630,18 @@ function clearAllFilters() {
     input.value = '';
   });
   
-  // Reset gender toggle buttons
-  const genderButtons = document.querySelectorAll('button[data-active]');
-  genderButtons.forEach(button => {
-    // If it's a gender button (♂/♀), set it to active
+  // Reset toggle buttons
+  const toggleButtons = document.querySelectorAll('button[data-active]');
+  toggleButtons.forEach(button => {
+    // Gender buttons (♂/♀) return to active
     if (button.textContent === '♂' || button.textContent === '♀') {
       button.dataset.active = 'true';
-      button.style.opacity = '1';
-      button.style.fontWeight = 'bold';
-    } 
-    // If it's a date filter button (=, <, >), set it to inactive
+      button.classList.remove('kdb-btn--off');
+    }
+    // Date operator buttons (=, <, >) return to inactive
     else if (button.textContent === '=' || button.textContent === '<' || button.textContent === '>') {
       button.dataset.active = 'false';
-      button.style.backgroundColor = '#f0f0f0';
-      button.style.fontWeight = 'normal';
+      button.classList.remove('kdb-btn--on');
     }
   });
   
@@ -854,21 +711,23 @@ function applyGrouping(sortByKey = false) {
   syncTopSummary();
 }
 
-function addTopSummary(table) {
+// Bottom row of the toolbar: the mirrored summary count (left) and the add-on caption (right).
+function buildToolbarFoot(table) {
+  const foot = document.createElement('div');
+  foot.className = 'kdb-toolbar__foot';
+
+  const summary = document.createElement('div');
+  summary.id = 'fdkat-top-summary';
+  summary.className = 'kdb-summary';
+
   const tfoot = table.querySelector('tfoot');
   const countCell = tfoot ? tfoot.querySelector('td[colspan]') : null;
   const span = countCell ? countCell.querySelector('span') : null;
-  if (!span) return;
+  summary.textContent = span ? span.textContent : '';
 
-  const div = document.createElement('div');
-  div.id = 'fdkat-top-summary';
-  div.style.textAlign = 'right';
-  div.style.fontSize = '13px';
-  div.style.color = '#555';
-  div.style.padding = '0 0 6px 0';
-  div.textContent = span.textContent;
-
-  table.parentNode.insertBefore(div, table);
+  foot.appendChild(summary);
+  foot.appendChild(buildCaption());
+  return foot;
 }
 
 function syncTopSummary() {
@@ -883,15 +742,10 @@ function syncTopSummary() {
 function buildGroupHeaderRow(key, count) {
   const tr = document.createElement('tr');
   tr.dataset.groupHeader = 'true';
-  tr.style.backgroundColor = '#e8e8e8';
+  tr.className = 'kdb-group-header';
 
   const td = document.createElement('td');
   td.colSpan = 5;
-  td.style.padding = '4px 8px';
-  td.style.borderTop = '2px solid #bbb';
-  td.style.fontWeight = 'bold';
-  td.style.fontSize = '12px';
-  td.style.color = '#555';
   td.textContent = `${key}  (${count} ${count === 1 ? 'cat' : 'cats'})`;
 
   tr.appendChild(td);
@@ -1033,13 +887,26 @@ function initCatDetailsPage() {
   const pedigreeTable = document.querySelector('table.sukupuu');
   if (!pedigreeTable) return;
 
-  addWideViewToggle(pedigreeTable);
-
   const { cellData, colorMap } = buildPedigreeColorMap(pedigreeTable);
-  if (colorMap.size === 0) return;
 
-  addPedigreeToggle(pedigreeTable, colorMap, cellData);
-  console.log(`Pedigree: ${colorMap.size} root-cause duplicate(s) highlighted`);
+  // Gather both toggles into a single compact toolbar above the pedigree
+  const toolbar = document.createElement('div');
+  toolbar.className = 'kdb-toolbar kdb-toolbar--compact';
+
+  addWideViewToggle(pedigreeTable, toolbar);
+  if (colorMap.size > 0) {
+    addPedigreeToggle(pedigreeTable, colorMap, cellData, toolbar);
+  }
+
+  // Nothing to show (e.g. a layout without wide-view support and no duplicates)
+  if (!toolbar.querySelector('input')) return;
+
+  toolbar.appendChild(buildCaption());
+  pedigreeTable.parentElement.insertBefore(toolbar, pedigreeTable);
+
+  if (colorMap.size > 0) {
+    console.log(`Pedigree: ${colorMap.size} root-cause duplicate(s) highlighted`);
+  }
 }
 
 function buildPedigreeColorMap(table) {
@@ -1071,7 +938,7 @@ function applyPedigreeColors(colorMap, cellData) {
   cellData.forEach(cell => { cell.td.style.backgroundColor = colorMap.get(cell.catId) || ''; });
 }
 
-function addWideViewToggle(table) {
+function addWideViewToggle(table, toolbar) {
   const sidebar = document.querySelector('.col-lg-2');
   const mainCol = document.querySelector('.col-lg-10');
   if (!sidebar || !mainCol) return;
@@ -1092,64 +959,36 @@ function addWideViewToggle(table) {
     });
   }
 
-  const container = document.createElement('div');
-  container.style.marginBottom = '4px';
-
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.id = 'pedigreeWideToggle';
-
-  const label = document.createElement('label');
-  label.htmlFor = 'pedigreeWideToggle';
-  label.textContent = ' Wide pedigree view';
-  label.style.cursor = 'pointer';
-
-  checkbox.addEventListener('change', function () {
-    localStorage.setItem('fdkat_wideView', this.checked);
-    applyWideView(this.checked);
+  const { label, input } = makeToggle('pedigreeWideToggle', 'Wide pedigree view', (checked) => {
+    localStorage.setItem('fdkat_wideView', checked);
+    applyWideView(checked);
   });
 
   const saved = localStorage.getItem('fdkat_wideView') === 'true';
   if (saved) {
-    checkbox.checked = true;
+    input.checked = true;
     applyWideView(true);
   }
 
-  container.appendChild(checkbox);
-  container.appendChild(label);
-  table.parentElement.insertBefore(container, table);
+  toolbar.appendChild(label);
 }
 
-function addPedigreeToggle(table, colorMap, cellData) {
-  const container = document.createElement('div');
-  container.style.marginBottom = '8px';
-
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.id = 'pedigreeHighlightToggle';
-
-  const label = document.createElement('label');
-  label.htmlFor = 'pedigreeHighlightToggle';
-  label.textContent = ' Highlight duplicate ancestors';
-  label.style.cursor = 'pointer';
-
-  checkbox.addEventListener('change', function () {
-    localStorage.setItem('fdkat_highlightDupes', this.checked);
-    if (this.checked) {
+function addPedigreeToggle(table, colorMap, cellData, toolbar) {
+  const { label, input } = makeToggle('pedigreeHighlightToggle', 'Highlight duplicate ancestors', (checked) => {
+    localStorage.setItem('fdkat_highlightDupes', checked);
+    if (checked) {
       applyPedigreeColors(colorMap, cellData);
     } else {
       cellData.forEach(cell => { cell.td.style.backgroundColor = ''; });
     }
   });
 
-  // Default is on; only off if user has explicitly turned it off
+  // Default is on; only off if the user has explicitly turned it off
   const saved = localStorage.getItem('fdkat_highlightDupes');
-  checkbox.checked = saved !== 'false';
-  if (checkbox.checked) {
+  input.checked = saved !== 'false';
+  if (input.checked) {
     applyPedigreeColors(colorMap, cellData);
   }
 
-  container.appendChild(checkbox);
-  container.appendChild(label);
-  table.parentElement.insertBefore(container, table);
+  toolbar.appendChild(label);
 }

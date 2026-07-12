@@ -13,6 +13,22 @@ All three sites run the same underlying FIFe Nordic pedigree database system:
 
 Both bare and `www.` variants serve the same content; the manifest must include both.
 
+The three sites share the same backend and stylesheet — same theme, differing mainly in language
+(and minor deviations like date format). A palette derived from one applies to all three.
+
+### Site visual palette (public pages)
+
+From `App_Themes/Default/Default.css` (fdkat.dk):
+
+- **Font:** `'Helvetica Neue', Helvetica, Arial, sans-serif`, base **12px**, body text `#333`
+- **Accent blue `#38A4FF`** — NOT the general link colour. Regular `a` colour is commented out
+  (links inherit `#333`); `#38A4FF` only applies to `a:visited` / `a:active`. Use it sparingly,
+  for interactive/active cues only — leaning on it makes a restyle louder than the real site.
+- **Soft panel tints:** blue `#E6F0FA` / `#EFF6FF` / `#E0E5FF`; warm **peach** `#FFEFE7` / `#FFD2BF`
+- **Borders / greys:** blue-grey border `#C1CBD5`; control fill `#F0F0F0`; grey text `#999`
+- The site's overall character is muted grey text + soft blue/peach panel tints, not a bright accent.
+- Logo: `pics/logo_fd.png` — black-and-white "FELIS DANICA" line-art sun emblem.
+
 ## Public Search Results Page
 
 **URL:** `kissat.aspx` (fdkat.dk, kissaliitto.fi) or `/Katter/kissat` (nrr.no)

@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.4.1] - 2026-07-12
+
+### Fixed
+
+- Gender row colouring (and the sorted-header highlight and group-header background) were not
+  applied: the `--kdb-*` design tokens were scoped to the `.kdb-toolbar` panel, so `var()`
+  references on table rows/headers — which live outside the panel — resolved to nothing.
+  Tokens are now declared on `:root`.
+
+## [1.4.0] - 2026-07-12
+
+### Changed
+
+- Visual refresh of all injected UI. The scattered controls on the search-results page
+  (clear-filters button, group-by dropdown, colour toggle, per-column filters and the top
+  summary line) are now grouped into a single cohesive add-on toolbar panel with a soft blue
+  tint, a thin accent edge, and consistent typography drawn from the host site's own palette
+  (`#EFF6FF` / `#C1CBD5` / `#38A4FF`, Helvetica/Arial 12px). The pedigree pages get the same
+  treatment via a compact variant of the toolbar.
+- The sorted-column highlight now uses the site's soft `#E6F0FA` with a restrained blue accent
+  underline instead of the previous saturated `lightblue`.
+- Gender row tint and gender filter buttons shifted from candy pink to a softer peach
+  (`#ffe6d8`) to match the site's warm accent; buttons gained hover/focus feedback.
+- A discreet "✦ enhanced by KissatDB add-ons" caption now appears in the toolbar corner
+  (with a tooltip clarifying the whole page is enhanced, not just the toolbar).
+
+### Internal
+
+- All static styling moved out of inline JS assignments into a namespaced `styles.css`
+  (`.kdb-*`) injected via the manifest; `content.js` now toggles classes instead of writing
+  ~40 inline styles. `styles.css` added to the packaging script.
+
 ## [1.3.0] - 2026-06-05
 
 ### Added

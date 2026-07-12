@@ -30,7 +30,12 @@ Group headers show the group name and cat count. A summary line at both top and 
 
 ### Visual
 
-- Rows are colored by gender (subtle background tint)
+- All controls (clear-filters, group-by, per-column filters, colour toggle, summary) are
+  grouped into a single cohesive add-on toolbar panel styled to harmonize with the host site
+  (soft blue tint, thin accent edge, Helvetica/Arial 12px). A discreet "enhanced by KissatDB
+  add-ons" caption sits in the toolbar corner.
+- Rows are colored by gender (subtle background tint: blue for males, peach for females)
+- The sorted column header is highlighted with a soft tint and a blue accent underline
 
 ## Cat Details Page
 

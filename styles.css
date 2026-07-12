@@ -1,0 +1,259 @@
+/* KissatDB add-ons — injected UI styles. All classes namespaced .kdb-* to avoid collisions with host sites. */
+
+/* Design tokens — declared on :root so they are in scope for the table rows,
+   headers and group-header rows too (those live outside the .kdb-toolbar panel). */
+:root {
+  --kdb-font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --kdb-font-size-base: 12px;
+  --kdb-text-color: #333;
+  --kdb-text-muted: #8595a6;
+  --kdb-panel-bg: #EFF6FF;
+  --kdb-panel-border: #C1CBD5;
+  --kdb-accent-blue: #38A4FF;
+  --kdb-accent-blue-dark: #2b8fe6;
+  --kdb-hover-blue: #E6F0FA;
+  --kdb-group-header-bg: #E3EAF3;
+  --kdb-male-tint: #dbe9ff;
+  --kdb-male-border: #9ab8e6;
+  --kdb-female-tint: #ffe6d8;
+  --kdb-female-border: #e6b8a1;
+}
+
+/* CONTAINERS */
+
+.kdb-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: var(--kdb-panel-bg);
+  border: 1px solid var(--kdb-panel-border);
+  border-left: 3px solid var(--kdb-accent-blue);
+  border-radius: 6px;
+  position: relative;
+  font-family: var(--kdb-font-family);
+  font-size: var(--kdb-font-size-base);
+  color: var(--kdb-text-color);
+  box-sizing: border-box;
+}
+
+.kdb-toolbar--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.kdb-toolbar__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kdb-toolbar__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kdb-caption {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--kdb-text-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.kdb-summary {
+  font-size: 13px;
+  color: #555;
+}
+
+/* BUTTONS */
+
+.kdb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border: 1px solid var(--kdb-panel-border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--kdb-text-color);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--kdb-font-size-base);
+  line-height: 1.4;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease;
+}
+
+.kdb-btn:hover {
+  background: var(--kdb-hover-blue);
+  border-color: #9db4cf;
+}
+
+.kdb-btn:active {
+  background: #d8e6f5;
+}
+
+.kdb-btn:focus-visible {
+  outline: 2px solid var(--kdb-accent-blue);
+  outline-offset: 1px;
+}
+
+.kdb-btn--on {
+  background: var(--kdb-accent-blue);
+  color: #fff;
+  border-color: var(--kdb-accent-blue-dark);
+  font-weight: 600;
+}
+
+.kdb-btn--on:hover {
+  background: var(--kdb-accent-blue-dark);
+  border-color: var(--kdb-accent-blue-dark);
+}
+
+.kdb-btn--male {
+  background: var(--kdb-male-tint);
+  border-color: var(--kdb-male-border);
+}
+
+.kdb-btn--female {
+  background: var(--kdb-female-tint);
+  border-color: var(--kdb-female-border);
+}
+
+.kdb-btn--off {
+  opacity: 0.45;
+  font-weight: normal;
+}
+
+.kdb-btn--male:not(.kdb-btn--off),
+.kdb-btn--female:not(.kdb-btn--off) {
+  font-weight: 600;
+}
+
+/* FORM CONTROLS */
+
+.kdb-select {
+  padding: 3px 6px;
+  border: 1px solid var(--kdb-panel-border);
+  border-radius: 4px;
+  background: #fff;
+  font-family: inherit;
+  font-size: var(--kdb-font-size-base);
+  color: var(--kdb-text-color);
+  cursor: pointer;
+}
+
+.kdb-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border: 1px solid var(--kdb-panel-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: var(--kdb-font-size-base);
+  color: var(--kdb-text-color);
+  background: #fff;
+}
+
+.kdb-input:focus {
+  outline: none;
+  border-color: var(--kdb-accent-blue);
+  box-shadow: 0 0 0 2px rgba(56, 164, 255, 0.2);
+}
+
+/* FILTER LAYOUT */
+
+.kdb-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.kdb-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+
+.kdb-field__label {
+  font-size: 11px;
+  color: #6b7683;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kdb-gender-group {
+  display: flex;
+  gap: 5px;
+}
+
+.kdb-gender-group .kdb-btn {
+  flex: 1;
+}
+
+.kdb-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kdb-date-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.kdb-date-buttons .kdb-btn {
+  flex: 1;
+  padding: 2px;
+}
+
+/* TABLE ENHANCEMENTS */
+
+.kdb-th {
+  cursor: pointer;
+  text-decoration: underline;
+  transition: background 0.12s ease;
+}
+
+.kdb-th:hover {
+  background: var(--kdb-hover-blue);
+}
+
+.kdb-th--sorted {
+  background: var(--kdb-hover-blue) !important;
+  box-shadow: inset 0 -2px 0 var(--kdb-accent-blue);
+}
+
+.kdb-row--male {
+  background: var(--kdb-male-tint) !important;
+}
+
+.kdb-row--female {
+  background: var(--kdb-female-tint) !important;
+}
+
+.kdb-group-header {
+  background: var(--kdb-group-header-bg) !important;
+}
+
+.kdb-group-header td {
+  border-top: 2px solid var(--kdb-panel-border);
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: var(--kdb-font-size-base);
+  color: #4a5568;
+}

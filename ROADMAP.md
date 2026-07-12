@@ -10,6 +10,7 @@
 - Color-code duplicate ancestors in the pedigree tab on cat details pages
 - Wide pedigree view toggle (hides sidebar, compacts cell padding) to reduce scrolling on deep pedigrees
 - Color-coded duplicate ancestors on the test-mating pedigree view and logged-in cat details page (`/FDKat/perusnaytto_kissa.aspx`)
+- Visual refresh: unified add-on toolbar and site-harmonized styling moved to a namespaced `styles.css`
 
 ## In Progress
 
