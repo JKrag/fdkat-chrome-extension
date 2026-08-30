@@ -887,6 +887,11 @@ function initCatDetailsPage() {
   const pedigreeTable = document.querySelector('table.sukupuu');
   if (!pedigreeTable) return;
 
+  buildPrintHeader(pedigreeTable);
+  markPrintClutter();
+  markPrintStatsForReorder(pedigreeTable);
+  mergeEmsAndBirthdate(pedigreeTable);
+
   const { cellData, colorMap } = buildPedigreeColorMap(pedigreeTable);
 
   // Gather both toggles into a single compact toolbar above the pedigree
@@ -935,7 +940,7 @@ function buildPedigreeColorMap(table) {
 }
 
 function applyPedigreeColors(colorMap, cellData) {
-  cellData.forEach(cell => { cell.td.style.backgroundColor = colorMap.get(cell.catId) || ''; });
+  cellData.forEach(cell => { cell.td.style.setProperty('--kdb-highlight-bg', colorMap.get(cell.catId) || ''); });
 }
 
 function addWideViewToggle(table, toolbar) {
@@ -951,6 +956,7 @@ function addWideViewToggle(table, toolbar) {
     mainCol.style.width = wide ? '100%' : '';
     mainCol.style.maxWidth = wide ? '100%' : '';
     table.style.width = wide ? '100%' : '';
+    table.classList.toggle('kdb-wide-pedigree', wide);
     document.querySelectorAll('table.sukupuu td > div').forEach(div => {
       div.style.padding = wide ? '2px' : '';
     });
@@ -973,13 +979,120 @@ function addWideViewToggle(table, toolbar) {
   toolbar.appendChild(label);
 }
 
+// Builds a print-only header (logo + name/titles + key fields) above the pedigree table.
+// Reads from the Basisinformation tab's ASP.NET label spans; no-ops when that tab isn't
+// present on the page (e.g. test_mate.aspx has no basic-info tab).
+function buildPrintHeader(pedigreeTable) {
+  const getField = (idSuffix) => {
+    const el = document.querySelector(`[id$="${idSuffix}"]`);
+    return el ? el.textContent.trim() : '';
+  };
+
+  const name = getField('_lblNimi');
+  if (!name) return;
+
+  const titles = getField('_cMuutTittelit');
+  const fullName = titles ? `${titles} ${name}` : name;
+
+  const fields = [
+    ['Stambogsnr.', getField('_cRekisterinumero')],
+    ['Køn', getField('_cSukupuoli')],
+    ['EMS kode', getField('_cEMSKoodiString')],
+    ['Født', getField('_cSyntymaaika')],
+  ].filter(([, value]) => value);
+
+  const header = document.createElement('div');
+  header.className = 'kdb-print-header';
+
+  const logo = document.querySelector('img[src*="logo_fd.png"]');
+  if (logo) {
+    const logoImg = document.createElement('img');
+    logoImg.src = logo.src;
+    logoImg.alt = 'Felis Danica';
+    logoImg.className = 'kdb-print-header__logo';
+    header.appendChild(logoImg);
+  }
+
+  const info = document.createElement('div');
+  info.className = 'kdb-print-header__info';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'kdb-print-header__name';
+  nameEl.textContent = fullName;
+  info.appendChild(nameEl);
+
+  const fieldsEl = document.createElement('div');
+  fieldsEl.className = 'kdb-print-header__fields';
+  fieldsEl.textContent = fields.map(([label, value]) => `${label}: ${value}`).join('   |   ');
+  info.appendChild(fieldsEl);
+
+  header.appendChild(info);
+  pedigreeTable.parentElement.insertBefore(header, pedigreeTable);
+}
+
+// Tags on-page controls that are only useful interactively (generation picker, direct-link
+// copy box) with a print-hide class, since they have no stable CSS class of their own to
+// target from styles.css.
+function markPrintClutter() {
+  const sukupuuPanel = document.getElementById('tabSukupuu');
+  if (!sukupuuPanel) return;
+
+  const genList = sukupuuPanel.querySelector('.horizontalList');
+  if (genList && genList.parentElement && genList.parentElement.parentElement) {
+    genList.parentElement.parentElement.classList.add('kdb-print-hide');
+  }
+
+  const directLinkInput = sukupuuPanel.querySelector('input[type="text"]');
+  if (directLinkInput && directLinkInput.parentElement) {
+    directLinkInput.parentElement.classList.add('kdb-print-hide');
+  }
+
+  // Sponsor banner ad (e.g. "hovedsponsorer for Felis Danica" / Agria / Royal Canin) — sits in
+  // its own row above the cat heading, sharing that row only with the site logo. Hide just its
+  // own column: the sidebar ad's column (.col-lg-2) shares a row with the main content column
+  // and is already hidden via CSS, so hiding the whole row there would take the pedigree with it.
+  document.querySelectorAll('[id*="Advertisement"]').forEach(ad => {
+    const col = ad.closest('[class*="col-"]');
+    if (col) col.classList.add('kdb-print-hide');
+  });
+}
+
+// Tags the inbreeding coefficient / ALC lines and their shared container so the print
+// stylesheet can flex-reorder them to appear after the pedigree table instead of before it.
+function markPrintStatsForReorder(pedigreeTable) {
+  const wrap = pedigreeTable.parentElement;
+  if (!wrap) return;
+  wrap.classList.add('kdb-print-pedigree-wrap');
+
+  document.querySelectorAll('[id*="Sukusiitos"], [id*="Sukukato"]').forEach(span => {
+    const statDiv = span.closest('div');
+    if (statDiv) statDiv.classList.add('kdb-print-stats');
+  });
+}
+
+// Moves each cell's EMS-code div (right-aligned, normally sitting above the birth date on its
+// own line) inside the birth-date div, tagging the pair with a class that CSS can turn into a
+// single flex row. Purely structural — with no flex rule applied it still renders as two stacked
+// blocks, so this is safe to run unconditionally. CSS opts it into the merged layout for print
+// and (via .kdb-wide-pedigree, set by addWideViewToggle) for the on-screen wide view.
+function mergeEmsAndBirthdate(pedigreeTable) {
+  pedigreeTable.querySelectorAll('[id*="lblSyntymaaika"]').forEach(birthSpan => {
+    const birthDiv = birthSpan.parentElement;
+    const cellRoot = birthDiv.parentElement;
+    const emsSpan = cellRoot.querySelector('[id*="lblEMSKoodi"]');
+    if (!emsSpan) return;
+    birthDiv.classList.add('kdb-birthdate-ems-row');
+    birthDiv.appendChild(emsSpan.parentElement);
+  });
+}
+
 function addPedigreeToggle(table, colorMap, cellData, toolbar) {
   const { label, input } = makeToggle('pedigreeHighlightToggle', 'Highlight duplicate ancestors', (checked) => {
     localStorage.setItem('fdkat_highlightDupes', checked);
     if (checked) {
       applyPedigreeColors(colorMap, cellData);
     } else {
-      cellData.forEach(cell => { cell.td.style.backgroundColor = ''; });
+      cellData.forEach(cell => { cell.td.style.removeProperty('--kdb-highlight-bg'); });
     }
   });
 

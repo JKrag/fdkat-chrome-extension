@@ -80,6 +80,70 @@ Two Bootstrap columns (unique on page, no IDs):
 
 The columns sit inside `div.row` inside `div.container`. Bootstrap sets `.container { width: 1170px }` (not `max-width`) on large viewports — overriding it requires setting an inline `width` (e.g. `97%`), not `max-width`, on the container element.
 
+### Basic info tab (`#tabPerustiedot`)
+
+Fields are ASP.NET label `<span>`s whose `id` ends in a stable suffix regardless of the full
+`ctl00_cphContent_perustiedot_...` prefix — select with `[id$="_suffix"]`. Confirmed present on
+the public page; likely also present (same suffixes) on the logged-in `/FDKat/` variant since
+it's probably the same server control, though that hasn't been directly inspected.
+
+| Suffix | Content | Notes |
+|--------|---------|-------|
+| `_lblNimi` | Full display name | e.g. "Nyx Mavra Chang" (stamnavn + individual name); also echoed in the page's `<h1>` alongside the reg number |
+| `_cNimi` | Individual name only | e.g. "Mavra Chang" (no stamnavn/kennel prefix) |
+| `_cMuutTittelit` | Titles ("Andre titler") | Free-text, empty until the cat has show titles; convention elsewhere on the site is titles-then-name |
+| `_cRekisterinumero` | Stambogsnummer | Distinct from the pedigree tab's `lblRekisterinumero` (different field, no suffix collision) |
+| `_cSukupuoli` | Køn | |
+| `_cEMSKoodiString` | EMS kode | |
+| `_cSyntymaaika` | Fødselsdato | |
+| `_cRekisterointipvm` | Registreringsdato | |
+
+Used by `buildPrintHeader()` in `content.js` to populate the print-only pedigree header (see
+FEATURES.md → "Print stylesheet").
+
+### Bootstrap's print reset (public pages)
+
+The public site's own `@media print` stylesheet includes Bootstrap 3's standard print reset:
+
+```
+*, ::after, ::before { color: #000 !important; text-shadow: none !important; background: 0 0 !important; box-shadow: none !important; }
+.table td, .table th { background-color: #fff !important; }
+```
+
+The universal `*` rule strips every element's background when printing — including our
+duplicate-ancestor highlight colors — despite being `!important`, because our own print rule
+uses a more specific selector (`table.sukupuu td`) which wins the cascade regardless of
+`!important` vs `!important` source order. This is why the highlight color is stored in a CSS
+custom property (`--kdb-highlight-bg`, set by `applyPedigreeColors()`) rather than a plain
+inline `background-color`: a stylesheet rule can reassert a custom property with higher
+specificity, but there's no way to reassert an arbitrary *inline* value from a stylesheet rule.
+
+### Sponsor ad placements (cat details page)
+
+Two separate ad slots, both ASP.NET controls with `id` containing `Advertisement`:
+
+- `cphAdvertisement1_...` — the "hovedsponsorer for Felis Danica" banner (Agria, Royal Canin),
+  in its own `.row` near the top of the page, sharing that row only with the site logo column
+- `cphAdvertisement2_...` — the smaller sidebar ad inside `.col-lg-2`, which shares its `.row`
+  with the main content column (`.col-lg-10`) — hiding that whole row would take the pedigree
+  with it, so only the `.col-lg-2` column itself is hidden, not the row
+
+`markPrintClutter()` in `content.js` hides each ad by its own closest column
+(`[class*="col-"]`), not by row, to avoid that trap.
+
+### Generation picker / direct-link box (`#tabSukupuu`)
+
+Neither the generation-number list nor the "direct link to pedigree" textbox has a useful class
+of its own:
+
+- Generation picker: `<ul class="horizontalList">` inside two nested unclassed `<div>`s (the
+  outer of the two also holds the "Generationer" label as a sibling `<div>`)
+- Direct-link textbox: `input[type="text"]` inside an unclassed `<div>`, alone in `#tabSukupuu`
+  (safe to select by type since no other text inputs live in that panel)
+
+`markPrintClutter()` in `content.js` tags both with a runtime `.kdb-print-hide` class rather
+than relying on structural CSS selectors, since the wrapper `<div>`s carry no stable identity.
+
 ### Pedigree table (`#tabSukupuu`)
 
 Selector: `table.sukupuu`

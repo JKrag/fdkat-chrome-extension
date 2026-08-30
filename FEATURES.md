@@ -47,7 +47,18 @@ Root-cause duplicate ancestors are highlighted with a distinct pastel background
 
 ### Wide pedigree view
 
-A "Wide pedigree view" checkbox above the pedigree table hides the right sidebar and expands the main column to full page width, while also compacting cell padding. This reduces vertical scrolling for deep pedigrees (5–8 generations), which can otherwise stretch to many screen heights.
+A "Wide pedigree view" checkbox above the pedigree table hides the right sidebar and expands the main column to full page width, while also compacting cell padding. This reduces vertical scrolling for deep pedigrees (5–8 generations), which can otherwise stretch to many screen heights. It also merges each cell's EMS code onto the birth-date line instead of its own line above, saving a further row of height per ancestor.
+
+### Print stylesheet (4-gen pedigree)
+
+Printing the page (Ctrl/Cmd+P) while viewing the default 4-generation pedigree produces a clean,
+single-page A4 landscape printout: both sponsor ad placements, site tab navigation, other tab
+panels, the fixed nav bar and the add-on's own toolbar controls are all hidden, and the pedigree
+table expands to the full page width. A print-only header is added above the table with the
+Felis Danica logo, the cat's full name (with titles, when present), stambogsnummer, køn, EMS
+kode and fødselsdato. Ancestor links print as plain names, not raw URLs. Duplicate-ancestor highlight colours (see
+below) print too, when that toggle is on. Deeper pedigrees
+(5–8 generations) are not yet tuned for print — that's planned separately.
 
 ## Test-Mating Page (logged in)
 

@@ -29,3 +29,4 @@ Thumbs.db
 Screenshot-*.png
 .playwright-mcp/*.yml
 .playwright-mcp/*.png
+debug/

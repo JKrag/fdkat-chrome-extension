@@ -257,3 +257,196 @@
   font-size: var(--kdb-font-size-base);
   color: #4a5568;
 }
+
+/* Duplicate-ancestor highlight colour, read from a CSS custom property set by
+   applyPedigreeColors() in content.js rather than a plain inline background-color. This matters
+   for print: Bootstrap's print stylesheet includes a `*, ::after, ::before { background: 0 0
+   !important; }` reset, and a stylesheet !important rule beats an inline *non*-!important style.
+   A custom property lets our own selector (higher specificity than Bootstrap's `*`) carry
+   !important in the print block below and win the cascade instead. */
+table.sukupuu td {
+  background-color: var(--kdb-highlight-bg, transparent);
+}
+
+/* PRINT — pedigree printout (cat details page). Screen-hidden; shown only in @media print. */
+
+.kdb-print-header {
+  display: none;
+}
+
+/* Wide pedigree view (screen): merge the EMS code onto the birth-date line, same layout print
+   always uses. DOM pairing is done unconditionally by mergeEmsAndBirthdate() in content.js;
+   this just opts wide view into the flex row it enables. */
+table.sukupuu.kdb-wide-pedigree .kdb-birthdate-ems-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  /* Bootstrap's print styles append the raw href after every link (e.g. "Name
+     (perusnaytto_kissa.aspx?id=...)"), which is noise once the ad/nav chrome is gone and the
+     pedigree is the only thing left on the page. */
+  #tabSukupuu a[href]::after {
+    content: none !important;
+  }
+
+  /* Site chrome: fixed top nav bar and the page's own name/reg-number heading (redundant with
+     our print header, and a fixed-position element would otherwise repeat oddly across pages).
+     .body-content reserves 85px of top margin to clear the fixed navbar; with the navbar gone
+     that margin is just dead space at the top of the printout. */
+  .navbar,
+  .page-header,
+  footer,
+  /* Separator before the (now-hidden) footer — left alone it still spills onto its own extra
+     page, since a lone <hr> plus the page's bottom margin is enough to overflow */
+  hr,
+  /* Site name banner ("FDkat") — not worth the vertical space it takes from the pedigree */
+  #title,
+  /* Ads and sidebar */
+  .col-lg-2,
+  /* Site tab navigation and every tab panel except the pedigree */
+  ul.nav-tabs,
+  #tabPerustiedot,
+  #tabTerveystulokset,
+  #tabNayttelytulokset,
+  #tabJalkelaiset,
+  /* Our own on-screen controls, and site controls with no print use */
+  .kdb-toolbar,
+  .kdb-caption,
+  .kdb-print-hide {
+    display: none !important;
+  }
+
+  #tabSukupuu {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  .body-content {
+    margin-top: 0 !important;
+    /* The site sets an explicit pixel height here (matching the viewport at load time) to push
+       a sticky footer down. It reserves that much vertical space regardless of actual content,
+       which was spilling a blank page past the (much shorter) printed pedigree. */
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .container {
+    width: 100% !important;
+  }
+
+  .col-lg-10 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  /* Reorder: print header first, then the pedigree table, then the inbreeding/ALC stats
+     (on screen these stats sit above the table; tagged at runtime by
+     markPrintStatsForReorder() in content.js). */
+  .kdb-print-pedigree-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .kdb-print-pedigree-wrap .kdb-print-header {
+    order: 0 !important;
+  }
+
+  .kdb-print-pedigree-wrap table.sukupuu {
+    order: 1 !important;
+  }
+
+  .kdb-print-pedigree-wrap .kdb-print-stats {
+    order: 2 !important;
+    margin-top: 4px !important;
+  }
+
+  .kdb-print-header {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .kdb-print-header__logo {
+    height: 32px;
+    width: auto;
+  }
+
+  .kdb-print-header__name {
+    font-family: var(--kdb-font-family);
+    font-weight: bold;
+    font-size: 14px;
+    color: #000;
+  }
+
+  .kdb-print-header__fields {
+    font-family: var(--kdb-font-family);
+    font-size: 11px;
+    color: #333;
+  }
+
+  /* Forced regardless of the on-screen "Wide pedigree view" toggle, which sets some of these
+     same properties as plain (non-!important) inline styles via JS — without !important here,
+     whether that toggle happened to be on or off before printing could change the print output. */
+  table.sukupuu {
+    font-size: 9px;
+    width: 100% !important;
+  }
+
+  /* Browsers drop background colors from print output by default to save ink (opt back in), AND
+     Bootstrap's print stylesheet forces `background: 0 0 !important` on every element (beaten
+     here since this selector's specificity is higher — see the --kdb-highlight-bg rule above). */
+  table.sukupuu td {
+    background-color: var(--kdb-highlight-bg, transparent) !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Cat names aren't links once printed (no href), so drop the underline */
+  table.sukupuu a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  /* Leading titles (e.g. "CH", "SC") and the kennel/breeder prefix (e.g. "Lancarrow", "DK Nyx")
+     each render in their own div, above the name, on screen — merge them onto the name's line
+     to save a row of height per ancestor. The wrapper divs need this AND the kennel-prefix div
+     itself needs it: a block box nested inside an inline one still forces its own line break
+     before and after it, so making only the wrapper inline isn't enough. */
+  table.sukupuu div:has(> [id*="lblTittelit"]),
+  table.sukupuu div:has(> [id*="kasvattajanimiPrefix"]),
+  table.sukupuu [id*="kasvattajanimiPrefix"] {
+    display: inline !important;
+  }
+
+  table.sukupuu [id*="lblTittelit"]:not(:empty),
+  table.sukupuu [id*="lblKasvattajanimiPrefix"]:not(:empty) {
+    margin-right: 4px;
+  }
+
+  /* EMS code (right-aligned, normally its own line above birth date) — merge onto the birth
+     date's line. DOM pairing done unconditionally by mergeEmsAndBirthdate() in content.js. */
+  table.sukupuu .kdb-birthdate-ems-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    gap: 4px;
+  }
+
+  table.sukupuu td > div {
+    padding: 2px !important;
+  }
+
+  table.sukupuu td > div > div {
+    margin-bottom: 0 !important;
+  }
+}
